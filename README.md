@@ -23,12 +23,11 @@ This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourcefor
 2. Copy/Extract `Plugins` to NSIS plugins directory (usually `C:\Program Files\Nsis\Plugins\` or `C:\Program Files (x86)\Nsis\Plugins\`)
 3. Reference `NsisMultiUser.nsh` in your main NSI file like this:
 		`!include "NsisMultiUser.nsh"`
-4. Insert macros with the version of required .NET framework.
 
 ### Local
 1. Copy the whole project into a subfolder called `NsisMultiUser` under your NSIS Script folder.
-2. Refrence the Plugin DLL like this: `!addplugindir "NsisMultiUser\Plugins"`
-3. Reference `NsisMultiUser.nsh` in your main NSI file like this: `!include "NsisMultiUser\Include\NsisMultiUser.nsh"`
+2. Refrence the Plugin DLL like this: `!addplugindir "NsisMultiUser\Plugins\"` (you can also use a relative path)
+3. Reference `NsisMultiUser.nsh` in your main NSI file like this: `!include "NsisMultiUser\Include\NsisMultiUser.nsh"` (you can also use a relative path)
 
 ## Usage
 
