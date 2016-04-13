@@ -265,11 +265,11 @@ FunctionEnd
 		!if "${UNINSTALLER_PREFIX}" == UN
 			${if} $HasPerUserInstallation == "1" ; if there is only one installation... skip form.. only one uninstall available
 				${andif} $HasPerMachineInstallation == "0"
-				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers ; Uninstaller has only HasPerUserInstallation
+				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser ; Uninstaller has only HasPerUserInstallation
 				Abort ; // next page
 			${elseif} $HasPerUserInstallation == "0" ; if there is only one installation... skip form.. only one uninstall available
 				${andif} $HasPerMachineInstallation == "1"
-				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser ; Uninstaller has only HasPerMachineInstallation
+				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers ; Uninstaller has only HasPerMachineInstallation
 				Abort ; // next page
 			${endif} 
 		!endif
