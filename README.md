@@ -11,23 +11,33 @@ This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourcefor
 - Correctly creates and removes shortcuts and registry (per-user and per-machine are totally independent)
 - Fills uninstall information in registry like Icon and Estimated Size.
 - If running as non-elevated user, the "per-machine" install can be allowed (automatically invoking UAC elevation) or can be disabled (suggesting to run again as elevated user)
+- If elevation is invoked for per-machine install, the calling process automatically hides itself, and the elevated inner process automatically skips the choice screen (cause in this case we know that per-machine installation was chosen)
 
 ## Structure:
  - `Include` - contains all necessary headers (*.nsh), including [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c ( 2015-05-26)
- - `Plugins` - contains only the DLLs for the [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c ( 2015-05-26). 
+ - `Plugins` - contains only the DLLs for the [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c (2015-05-26). 
 
 ## Installation
 
 ### All Users
-1. Copy/Extract `Include` to NSIS includes directory (usually `C:\Program Files\Nsis\Include\` or `C:\Program Files (x86)\Nsis\Include\`)
-2. Copy/Extract `Plugins` to NSIS plugins directory (usually `C:\Program Files\Nsis\Plugins\` or `C:\Program Files (x86)\Nsis\Plugins\`)
-3. Reference `NsisMultiUser.nsh` in your main NSI file like this:
+1. Copy/Extract `Include` contents to NSIS includes directory (usually `C:\Program Files\Nsis\Include\` or `C:\Program Files (x86)\Nsis\Include\`)
+2. Copy/Extract `Plugins` contents to NSIS plugins directory (usually `C:\Program Files\Nsis\Plugins\` or `C:\Program Files (x86)\Nsis\Plugins\`)
+3. Add reference to  `NsisMultiUser.nsh` in your main NSI file like this:
 		`!include "NsisMultiUser.nsh"`
 
 ### Local
-1. Copy the whole project into a subfolder called `NsisMultiUser` under your NSIS Script folder.
-2. Refrence the Plugin DLL like this: `!addplugindir "NsisMultiUser\Plugins\"` (you can also use a relative path)
-3. Reference `NsisMultiUser.nsh` in your main NSI file like this: `!include "NsisMultiUser\Include\NsisMultiUser.nsh"` (you can also use a relative path)
+1. Copy the whole project into any folder (suggestion is a subfolder called `NsisMultiUser` under your NSIS Script folder)
+2. Add reference to the DLLs and to the INCLUDE headers like this: 
+    ```nsis
+    ; if you don't have UAC plug-in installed, add plugin directories (DLLs) to the search path
+    !addplugindir /x86-ansi ".\NsisMultiUser\Plugins\x86-ansi\"
+    !addplugindir /x86-unicode ".\NsisMultiUser\Plugins\x86-unicode\"
+     
+    ; include the path to header file (full or relative paths), or just add the include directory to the search path (like !addplugindir above)
+    ;!include ".\NsisMultiUser\Include\NsisMultiUser.nsh" 
+    !addincludedir ".\NsisMultiUser\Include\"
+    !include "NsisMultiUser.nsh" 
+    ```
 
 ## Usage
 
