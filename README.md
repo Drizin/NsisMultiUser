@@ -123,3 +123,41 @@ Function un.onInit
   !insertmacro MULTIUSER_UNINIT
 FunctionEnd
 ```
+
+
+## Screenshots
+
+User runs the installer, no elevation is required unless/until it's necessary.
+
+If the **ALLOW_ELEVATION** is NOT defined and user is NOT running as admin, only per-user installation is offered:
+
+![Per-user install](/Documentation/screenshot1.png?raw=true)
+![Per-user install](/Documentation/screenshot2.png?raw=true)
+
+
+If the user is running as admin or if  **ALLOW_ELEVATION** is defined, both options are offered:
+
+![Per-user install](/Documentation/screenshot3.png?raw=true)
+
+PS: If running as regular user, default is to suggest a per-user install, unless **DEFAULT_ALLUSERS** is defined 
+
+Reinstallations/Upgrades will always suggest to use the existing installation:
+
+![Per-user install](/Documentation/screenshot4.png?raw=true)
+
+![Per-user install](/Documentation/screenshot5.png?raw=true)
+
+
+**If there are both per-user and per-machine installations**, uninstaller will ask which one should be removed.
+
+![Per-user install](/Documentation/screenshot6.png?raw=true)
+
+The "add/remove programs" will show individual installations (one is stored in HKLM and other in HKCU):
+
+![Per-user install](/Documentation/screenshot7.png?raw=true)
+
+If you choose to uninstall the per-machine installation (first row) from this "add/remove" screen, Windows will automatically request elevation, so (unless you also have a per-user installation on the Administrator account) it will **automatically remove the per-machine installation**.
+
+If you choose uninstall the per-user installation (second row) from this "**add/remove**" screen, installer will run on user context, so the "**which installation to remove**" screen will **only be shown if there is also a per-machine installation**, or else this screen is skipped.
+
+PS: This "**choose installation to remove**" screen was designed to appear in the uninstall (when there are multiple installations) because when user **launches the "uninstall.exe" from the folder** we cannot automatically tell if he wants to remove the per-user or per-machine. However, later (when writing this) I realized that I could add some argument to the "**UninstallString**" so that when uninstaller was launched from the "add/remove programs" we could know in advance which install should be removed, and skip this screen at all.
