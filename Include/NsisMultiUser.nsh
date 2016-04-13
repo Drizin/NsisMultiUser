@@ -273,6 +273,23 @@ FunctionEnd
 				Abort ; // next page
 			${endif} 
 		!endif
+
+		${GetParameters} $R0
+		${GetOptions} $R0 "/allusers" $R1
+		IfErrors notallusers
+		${if} $IsAdmin == "0" 
+			ShowWindow $HWNDPARENT ${SW_HIDE} ; HideWindow would work?
+			!insertmacro UAC_RunElevated
+			Quit ;we are the outer process, the inner process has done its work (ExitCode is $2), we are done
+		${endif}
+		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers ; Uninstaller has only HasPerMachineInstallation
+		Abort ; // next page		  
+	notallusers:
+		${GetOptions} $R0 "/currentuser" $R1
+		IfErrors notcurrentuser
+		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser ; Uninstaller has only HasPerUserInstallation
+		Abort ; // next page
+	notcurrentuser:
 		
 		
 		!insertmacro MUI_PAGE_FUNCTION_CUSTOM PRE
@@ -456,13 +473,14 @@ FunctionEnd
 	; Write the uninstall keys for Windows
 	${if} $MultiUser.InstallMode == "AllUsers" ; setting defaults
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayName" "${PRODUCT_NAME} ${VERSION}"
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "${MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME}" '"$INSTDIR\${UNINSTALL_FILENAME}" /allusers' ; "UninstallString"
 	${else}
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayName" "${PRODUCT_NAME} ${VERSION} (only current user)" ; "add/remove programs" will show if installation is per-user
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "${MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME}" '"$INSTDIR\${UNINSTALL_FILENAME}" /currentuser' ; "UninstallString"
 	${endif}
 
 	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayVersion" "${VERSION}"
 	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayIcon" "$INSTDIR\${PROGEXE},0"
-	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "${MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME}" '"$INSTDIR\${UNINSTALL_FILENAME}"' ; "UninstallString"
 	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "Publisher" "${COMPANY_NAME}"
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "NoModify" 1
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "NoRepair" 1

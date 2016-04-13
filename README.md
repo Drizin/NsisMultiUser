@@ -166,8 +166,9 @@ The "add/remove programs" will show individual installations (one is stored in H
 
 ![Per-user install](/Documentation/screenshot7.png?raw=true)
 
-If you choose to uninstall the per-machine installation (first row) from this "add/remove" screen, Windows will automatically request elevation, so (unless you also have a per-user installation on the Administrator account) it will **automatically remove the per-machine installation**.
+If you choose to uninstall the per-machine installation (first row) from this "add/remove" screen, command-line argument "/allusers" will make the uninstaller **automatically remove the per-machine installation** (skip the which-installation-screen, even if you also have a per-user installation on the Administrator account)
 
-If you choose uninstall the per-user installation (second row) from this "**add/remove**" screen, installer will run on user context, so the "**which installation to remove**" screen will **only be shown if there is also a per-machine installation**, or else this screen is skipped.
+If you choose uninstall the per-user installation (second row) from this "**add/remove**" screen, command-line argument "/currentuser" will make the uninstaller **automatically remove the per-user installation** (skip the which-installation-screen, even if you also have a per-machine installation)
 
-PS: This "**choose installation to remove**" screen was designed to appear in the uninstall (when there are multiple installations) because when user **launches the "uninstall.exe" from the folder** we cannot automatically tell if he wants to remove the per-user or per-machine. However, later (when writing this) I realized that I could add some argument to the "**UninstallString**" so that when uninstaller was launched from the "add/remove programs" we could know in advance which install should be removed, and skip this screen at all.
+If you run the uninstaller from the program folder (that is, without passing command-line arguments), this "**which installation to remove**" screen will be shown **if there is both per-user and per-machine installations**.
+
