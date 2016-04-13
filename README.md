@@ -14,7 +14,7 @@ This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourcefor
 - If elevation is invoked for per-machine install, the calling process automatically hides itself, and the elevated inner process automatically skips the choice screen (cause in this case we know that per-machine installation was chosen)
 
 ## Structure:
- - `Include` - contains all necessary headers (*.nsh), including [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c ( 2015-05-26)
+ - `Include` - contains all necessary headers (*.nsh), including [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c (2015-05-26)
  - `Plugins` - contains only the DLLs for the [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c (2015-05-26). 
 
 ## Installation
@@ -51,6 +51,7 @@ The include for `NsisMultiUser.nsh` should be done *after* defining the followin
 !define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${APP_NAME}"  ; registry key for UNINSTALL info, placed under [HKLM|HKCU]\Software\Microsoft\Windows\CurrentVersion\Uninstall  (can be ${APP_NAME} or some {GUID})
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME "InstallLocation"
+;!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${APP_NAME} ${VERSION} ${PRODUCT_EDITION}"  ; optional... default is "${APP_NAME} ${VERSION}"
 !define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION   ; OPTIONAL - allow requesting for elevation... if false, radiobutton will be disabled and user will have to restart installer with elevated permissions
 !define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS  ; OPTIONAL (only available if MULTIUSER_INSTALLMODE_ALLOW_ELEVATION) - will mark "all users" (per-machine) as default even if running as non-elevated user.
 ```
