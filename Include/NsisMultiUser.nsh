@@ -4,7 +4,7 @@ By Ricardo Drizin (contact at http://drizin.com.br)
 
 This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourceforge.net/Docs/MultiUser/Readme.html) but with some new features and some simplifications:
 - Installer allows installations "per-user" (no admin required) or "per-machine" (as original)
-- If running user IS part of Administrators group, he is not forced to elevate and install per-machine (only if necessary)
+- If running user IS part of Administrators group, he is not forced to elevate (only if necessary - for per-machine install)
 - If running user is NOT part of Administrators group, he is still able to elevate and install per-machine (I expect that power-users will have administrator password, but will not be part of the administrators group)
 - UAC Elevation happens only when necessary (when per-machine is selected), not in the start of the installer
 - Uninstaller block is mandatory (why shouldn't it be?)
@@ -12,6 +12,8 @@ This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourcefor
 - Correctly creates and removes shortcuts and registry (per-user and per-machine are totally independent)
 - Fills uninstall information in registry like Icon and Estimated Size.
 - If running as non-elevated user, the "per-machine" install can be allowed (automatically invoking UAC elevation) or can be disabled (suggesting to run again as elevated user)
+- If elevation is invoked for per-machine install, the calling process automatically hides itself, and the elevated inner process automatically skips the choice screen (cause in this case we know that per-machine installation was chosen)
+- If uninstalling from the "add/remove programs", automatically detects if user is trying to remove per-machine or per-user install
 
 */
 
