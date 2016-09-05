@@ -38,6 +38,11 @@ This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourcefor
     ;!include ".\NsisMultiUser\Include\NsisMultiUser.nsh" 
     !addincludedir ".\NsisMultiUser\Include\"
     !include "NsisMultiUser.nsh" 
+  
+    !include "MUI2.nsh"   ; NsisMultiUser depends on MUI2
+    !include LogicLib.nsh
+    
+    
     ```
 
 ## Usage
