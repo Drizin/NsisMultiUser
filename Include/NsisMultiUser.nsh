@@ -14,6 +14,8 @@ This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourcefor
 - If running as non-elevated user, the "per-machine" install can be allowed (automatically invoking UAC elevation) or can be disabled (suggesting to run again as elevated user)
 - If elevation is invoked for per-machine install, the calling process automatically hides itself, and the elevated inner process automatically skips the choice screen (cause in this case we know that per-machine installation was chosen)
 - If uninstalling from the "add/remove programs", automatically detects if user is trying to remove per-machine or per-user install
+- If someone tries to uninstall a per-machine-installation by running directly uninstall.exe (not using add/remove programs), it will automatically ask for elevation
+- Known issue: If uninstalling from Windows 10 - Settings -  Apps & features, will always need UAC because uninstall is not signed.
 
 */
 
@@ -66,6 +68,15 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!if "${UNINSTALLER_PREFIX}" != UN
 		;Set default installation location for installer
 		StrCpy $INSTDIR "$PROGRAMFILES\${MULTIUSER_INSTALLMODE_INSTDIR}"
+	!endif
+
+	; if someone uninstalls by directly running uninstall.exe (not using add/remove programs) it will automatically ask for elevation
+	!if "${UNINSTALLER_PREFIX}" == UN
+		${if} $IsAdmin == "0" 
+			ShowWindow $HWNDPARENT ${SW_HIDE} ; HideWindow would work?
+			!insertmacro UAC_RunElevated
+			Quit ; quit the outer process (even if inner process was not completed)
+		${endif}
 	!endif
 
 	; Checks registry for previous installation path (both for upgrading, reinstall, or uninstall)
@@ -286,7 +297,7 @@ FunctionEnd
 		${if} $IsAdmin == "0" 
 			ShowWindow $HWNDPARENT ${SW_HIDE} ; HideWindow would work?
 			!insertmacro UAC_RunElevated
-			Quit ;we are the outer process, the inner process has done its work (ExitCode is $2), we are done
+			Quit ; quit the outer process (even if inner process was not completed)
 		${endif}
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers ; Uninstaller has only HasPerMachineInstallation
 		Abort ; // next page		  

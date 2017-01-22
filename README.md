@@ -13,6 +13,8 @@ This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourcefor
 - If running as non-elevated user, the "per-machine" install can be allowed (automatically invoking UAC elevation) or can be disabled (suggesting to run again as elevated user)
 - If elevation is invoked for per-machine install, the calling process automatically hides itself, and the elevated inner process automatically skips the choice screen (cause in this case we know that per-machine installation was chosen)
 - If uninstalling from the "add/remove programs", automatically detects if user is trying to remove per-machine or per-user install
+- If someone tries to uninstall a per-machine-installation by running directly uninstall.exe (not using add/remove programs), it will automatically ask for elevation
+- Known issue: If uninstalling from Windows 10 - Settings -  Apps & features, will always need UAC because uninstall is not signed.
 
 ## Structure:
  - `Include` - contains all necessary headers (*.nsh), including [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c (2015-05-26)
