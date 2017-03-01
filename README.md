@@ -1,183 +1,88 @@
 # NSIS Multi User Plugin
-Installer/Uninstaller that allows installations "per-user" (no admin required) or "per-machine" (asks elevation only when necessary)
+NSIS plugin that allows "per-user" (no admin required) and "per-machine" (asks elevation *only when necessary*) installations. This plugin was inspired by [MultiUser.nsh (by Joost Verburg)](http://nsis.sourceforge.net/Docs/MultiUser/Readme.html), but supports a lot of new features and is easier to use.
 
-This plugin is based on [MultiUser.nsh (by Joost Verburg)](http://nsis.sourceforge.net/Docs/MultiUser/Readme.html) but with some new features and some simplifications:
-- Installer allows installations "per-user" (no admin required) or "per-machine" (as original)
-- If running user IS part of Administrators group, he is not forced to elevate (only if necessary - for per-machine install)
-- If running user is NOT part of Administrators group, he is still able to elevate and install per-machine (I expect that power-users will have administrator password, but will not be part of the administrators group)
-- UAC Elevation happens only when necessary (when per-machine is selected), not in the start of the installer
-- Uninstaller block is mandatory (why shouldn't it be?)
-- If there are both per-user and per-machine installations, user can choose which one to remove during uninstall
-- Correctly creates and removes shortcuts and registry (per-user and per-machine are totally independent)
-- Fills uninstall information in registry like Icon and Estimated Size.
-- If running as non-elevated user, the "per-machine" install can be allowed (automatically invoking UAC elevation) or can be disabled (suggesting to run again as elevated user)
-- If elevation is invoked for per-machine install, the calling process automatically hides itself, and the elevated inner process automatically skips the choice screen (cause in this case we know that per-machine installation was chosen)
-- If uninstalling from the "add/remove programs", automatically detects if user is trying to remove per-machine or per-user install
-- If someone tries to uninstall a per-machine-installation by running directly uninstall.exe (not using add/remove programs), it will automatically ask for elevation
-- Known issue: If uninstalling from Windows 10 - Settings -  Apps & features, will always need UAC because uninstall is not signed.
+## How It Works
 
-## Structure:
- - `Include` - contains all necessary headers (*.nsh), including [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c (2015-05-26)
- - `Plugins` - contains only the DLLs for the [UAC Plugin](http://nsis.sourceforge.net/UAC_plug-in) v0.2.4c (2015-05-26). 
+### Installer
+The plugin creates a custom Install Options page based on the nsDisalogs library that is displayed before the Components page. The page is displayed always and has two options: install for all users (per-machine) and install for current user only (per-user). When the user starts the setup, he is not forced to elevate in the beginning. If the user selects per-user install, he can install only for himself without being asked for elevation (except when there is per-machine installation that needs to be removed first). If the user selects per-machine install, the Windows shield is displayed on the Next button and elevation is required. Limited users can also install per-machine as long as they know the administrator credentials. 
 
-## Installation
+### Uninstaller
+The plugin creates the same custom page and shows it in the beginning of the uninstaller if there are two installations. Elevation is required only when per-machine version is uninstalled. If there is only one installed version or if command-line parameters are passed specifying which version to uninstall, the page is not displayed. In this case, the uninstaller asks for elevation if per-machine version is to be uninstalled. When invoked from the Windows Uninstall dialog or from the Start menu, a parameter to the uninstaller is passed, so that it detects which verion to uninstall, and the page is not displayed.
 
-### All Users
-1. Copy/Extract `Include` contents to NSIS includes directory (usually `C:\Program Files\Nsis\Include\` or `C:\Program Files (x86)\Nsis\Include\`)
-2. Copy/Extract `Plugins` contents to NSIS plugins directory (usually `C:\Program Files\Nsis\Plugins\` or `C:\Program Files (x86)\Nsis\Plugins\`)
-3. Add reference to  `NsisMultiUser.nsh` in your main NSI file like this:
-		`!include "NsisMultiUser.nsh"`
+### Both
+An option (`MULTIUSER_INSTALLMODE_ALLOW_ELEVATION`) defines whether elevation if allowed. If elevation is disabled, the per-machine option becomes available only if the (un)installer is started elevated from Windows and is disabled otherwise.
 
-### Local
-1. Copy the whole project into any folder (suggestion is a subfolder called `NsisMultiUser` under your NSIS Script folder)
-2. Add reference to the DLLs and to the INCLUDE headers like this: 
-    ```nsis
-    ; if you don't have UAC plug-in installed, add plugin directories (DLLs) to the search path
-    !addplugindir /x86-ansi ".\NsisMultiUser\Plugins\x86-ansi\"
-    !addplugindir /x86-unicode ".\NsisMultiUser\Plugins\x86-unicode\"
-     
-    ; include the path to header file (full or relative paths), or just add the include directory to the search path (like !addplugindir above)
-    ;!include ".\NsisMultiUser\Include\NsisMultiUser.nsh" 
-    !addincludedir ".\NsisMultiUser\Include\"
-    !include "NsisMultiUser.nsh" 
-  
-    !include "MUI2.nsh"   ; NsisMultiUser depends on MUI2
-    !include LogicLib.nsh
-    
-    
-    ```
+An option (`MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS`) defines whether simultaneous per-user and per-machine installations on the same machine are allowed. If set to disallow, the installer alaways requires elevation when there's per-machine installation in order to remove it first.
 
-## Usage
-
-The include for `NsisMultiUser.nsh` should be done *after* defining the following constants:
-
-```nsis
-!define APP_NAME "Servantt"
-!define UNINSTALL_FILENAME "uninstall.exe"
-!define MULTIUSER_INSTALLMODE_INSTDIR "${APP_NAME}"  ; suggested name of directory to install (under $PROGRAMFILES or $LOCALAPPDATA)
-!define MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY "${APP_NAME}"  ; registry key for INSTALL info, placed under [HKLM|HKCU]\Software  (can be ${APP_NAME} or some {GUID})
-!define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${APP_NAME}"  ; registry key for UNINSTALL info, placed under [HKLM|HKCU]\Software\Microsoft\Windows\CurrentVersion\Uninstall  (can be ${APP_NAME} or some {GUID})
-!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
-!define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME "InstallLocation"
-;!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${APP_NAME} ${VERSION} ${PRODUCT_EDITION}"  ; optional... default is "${APP_NAME} ${VERSION}"
-!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION   ; OPTIONAL - allow requesting for elevation... if false, radiobutton will be disabled and user will have to restart installer with elevated permissions
-!define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS  ; OPTIONAL (only available if MULTIUSER_INSTALLMODE_ALLOW_ELEVATION) - will mark "all users" (per-machine) as default even if running as non-elevated user.
-```
-
-Between your pages (normally you'll want to add it after the PAGE_LICENSE), just add this call to MULTIUSER_PAGE_INSTALLMODE:
-
-```nsis
-!insertmacro MUI_PAGE_LICENSE "..\License.rtf"
-;...
-!insertmacro MULTIUSER_PAGE_INSTALLMODE ; this will show the 2 install options, unless it's an elevated inner process (in that case we know we should install for all users)
-;...
-!insertmacro MUI_PAGE_DIRECTORY
-!insertmacro MUI_PAGE_COMPONENTS
-!insertmacro MUI_PAGE_INSTFILES 
-```
-
-In your main section, after writing all files (and uninstaller) just add this call (MULTIUSER_RegistryAddInstallInfo):
-
-```nsis
-Section "MyProgram (required)"
-  SectionIn RO
-
-  ; Set output path to the installation directory.
-  SetOutPath $INSTDIR
-  SetOverwrite on
-
-  ; Put files there
-  File "..\Release\Obfuscated\${PROGEXE}"
-  File "..\Release\Obfuscated\${PROGEXE}.config"
-  File "..\Release\ExternalReference.dll"
-  ; ...
-  File "..\License.rtf"
-  WriteUninstaller "${UNINSTALL_FILENAME}"
-  !insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
-SectionEnd
-```
-
-In the end of your uninstall, do the same (MULTIUSER_RegistryRemoveInstallInfo):
-
-```nsis
-Section "Uninstall"
-  ; Remove files and uninstaller
-  Delete $INSTDIR\*.dll
-  Delete $INSTDIR\*.exe
-  Delete $INSTDIR\*.rtf
-  Delete $INSTDIR\*.config
-  
-  ; Remove shortcuts, if any
-  ;SetShellVarContext all ; all users
-  Delete "$SMPROGRAMS\Servantt\*.*"
-  
-  ; Remove directories used
-  RMDir "$SMPROGRAMS\Servantt"
-  RMDir "$INSTDIR"
-  
-  !insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys
-SectionEnd
-```
-
-In the shortcuts section, don’t set var context (plugin will do), and use $SMPROGRAMS:
-
-```nsis
-Section "Start Menu Shortcuts"
-  ;SetShellVarContext all ; all users
-  CreateDirectory "$SMPROGRAMS\${APP_NAME}"
-  ;CreateShortCut "$SMPROGRAMS\${APP_NAME}\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "" "$INSTDIR\${UNINSTALL_FILENAME}" 0  ; shortcut for uninstall is bad cause user can choose this by mistake during search.
-  CreateShortCut "$SMPROGRAMS\${APP_NAME}\${PRODUCT_NAME} ${VERSION}.lnk" "$INSTDIR\${PROGEXE}" "" "$INSTDIR\${PROGEXE}" 0
-  Delete "$SMPROGRAMS\${APP_NAME}\${APP_NAME} 1.0*" ; old versions
-SectionEnd
-```
-  
-Initialize the plugin both for install and for uninstall (MULTIUSER_INIT and MULTIUSER_UNINIT):
-
-```nsis
-Function .onInit
-  !insertmacro MULTIUSER_INIT
-FunctionEnd
-  
-Function un.onInit
-  !insertmacro MULTIUSER_UNINIT
-FunctionEnd
-```
-
+## Features
+- Not tied or dependant on any particular user interface. Supports Modern UI 1/2, ModernUIEx, Ultra Modern UI,  the native NSIS interface, as well as any other interface that supports nsDialogs pages.
+- Includes fully functional demos for all supported interfaces that you can use as skeletons to start your scripts from.
+- Support for 64-bit installations
+- Correctly creates and removes full registry uninstall information like icon and estimated size (separate per-user and per-machine entries)
+- Fully supports silent mode, command-line switches and error level handling
+- Fully documented
 
 ## Screenshots
 
-User runs the installer, no elevation is required unless/until it's necessary.
+When `MULTIUSER_INSTALLMODE_ALLOW_ELEVATION` is `1`, there is no existing istallation and running as a regular user (Ultra Modern UI).
+Installation for current user requires no elevation:
 
-If the **ALLOW_ELEVATION** is NOT defined and user is NOT running as admin, only per-user installation is offered:
+![Installation for current user requires no elevation](./Screenshots/01.png?raw=true "Installation for current user requires no elevation")
+![Per-user installation folder](./Screenshots/02.png?raw=true "Per-user installation folder")
 
-![Per-user install](/Documentation/screenshot1.png?raw=true)
-![Per-user install](/Documentation/screenshot2.png?raw=true)
+Installation for all users requires elevation:
 
+![Installation for all users requires elevation](./Screenshots/03.png?raw=true "Installation for all users requires elevation")
 
-If the user is running as admin or if  **ALLOW_ELEVATION** is defined, both options are offered:
+When running as admin, no elevation is required:
 
-![Per-user install](/Documentation/screenshot3.png?raw=true)
+![When running as admin, no elevation is required](./Screenshots/04.png?raw=true "When running as admin, no elevation is required")
 
-PS: If running as regular user, default is to suggest a per-user install, unless **DEFAULT_ALLUSERS** is defined 
+When there is an existing installation, it is always selected (Modern UI 2):
 
-Reinstallations/Upgrades will always suggest to use the existing installation:
+![Existing instalation is always selected](./Screenshots/05.png?raw=true "Existing instalation is always selected")
 
-![Per-user install](/Documentation/screenshot4.png?raw=true)
+When `MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS` is `0`, there is existing per-machine installation and running as a regular user, elevation to install per-user is required (Modern UI 2):
 
-![Per-user install](/Documentation/screenshot5.png?raw=true)
+![When there is per-machine installation and elevation per-user is required](./Screenshots/06.png?raw=true "When there is per-machine installation and elevation per-user is required")
 
+When `MULTIUSER_INSTALLMODE_ALLOW_ELEVATION` is `0` and running as a regular user, per-machine option is disabled (native NSIS interface):
 
-**If there are both per-user and per-machine installations**, uninstaller will ask which one should be removed.
+![Per-machine option is disabled](./Screenshots/07.png?raw=true "Per-machine option is disabled")
 
-![Per-user install](/Documentation/screenshot6.png?raw=true)
+When invoked with the `/allusers` parameter and `MULTIUSER_INSTALLMODE_ALLOW_ELEVATION` is `1` (native NSIS interface):
 
-The "add/remove programs" will show individual installations (one is stored in HKLM and other in HKCU):
+![/allusers parameter](./Screenshots/08.png?raw=true "/allusers parameter")
 
-![Per-user install](/Documentation/screenshot7.png?raw=true)
+When invoked with the `/allusers` parameter and `MULTIUSER_INSTALLMODE_ALLOW_ELEVATION` is `0`:
 
-If you choose to uninstall the per-machine installation (first row) from this "add/remove" screen, command-line argument "/allusers" will make the uninstaller **automatically remove the per-machine installation** (skip the which-installation-screen, even if you also have a per-user installation on the Administrator account)
+![/allusers parameter and elevation is disabled](./Screenshots/09.png?raw=true "/allusers parameter and elevation is disabled")
 
-If you choose uninstall the per-user installation (second row) from this "**add/remove**" screen, command-line argument "/currentuser" will make the uninstaller **automatically remove the per-user installation** (skip the which-installation-screen, even if you also have a per-machine installation)
+When there are both per-user and per-machine installations and uninstaller is invoked without parameters, page is displayed (Ultra Modern UI):
 
-If you run the uninstaller from the program folder (that is, without passing command-line arguments), this "**which installation to remove**" screen will be shown **if there is both per-user and per-machine installations**.
+![Uninstaller page](./Screenshots/10.png?raw=true "Uninstaller page")
+
+The Windows Uninstall list of programs will show individual entries when there are both per-machine and per-user installations (one is stored in `HKLM` and other in `HKCU`):
+
+![The Windows Uninstall list of programs](./Screenshots/11.png?raw=true "The Windows Uninstall list of programs")
+
+The help dialog, invoked with the `/?` parameter:
+
+![The help dialog](./Screenshots/12.png?raw=true "The help dialog")
+
+## Usage
+
+Please look at the fully functional demos in the `Demos` folder.
+
+## Documentation
+
+The full NsisMultiUser documentation is avaialable on the [Wiki](https://github.com/Drizin/NsisMultiUser/wiki).
+
+You can also look at:
+- [UAC plugin page](http://nsis.sourceforge.net/UAC_plug-in)
+- [The original MultiUser.nsh plugin](http://nsis.sourceforge.net/Docs/MultiUser/Readme.html)
+- [nsDialogs plugin](http://nsis.sourceforge.net/Docs/nsDialogs/Readme.html)
+- [Modern UI](http://nsis.sourceforge.net/Docs/Modern%20UI/Readme.html)
+- [Ultra Modern UI](http://ultramodernui.sourceforge.net/)
+- [MSDN documentation](https://msdn.microsoft.com/en-us/library/windows/desktop/dd765197.aspx)
 
