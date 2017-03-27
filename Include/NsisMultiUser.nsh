@@ -58,6 +58,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!endif		
 	!define /ifndef MULTIUSER_INSTALLMODE_64_BIT 0 ; set to 1 for 64-bit installers	
 	!define /ifndef MULTIUSER_INSTALLMODE_INSTDIR "${PRODUCT_NAME}" ; suggested name of directory to install (under $PROGRAMFILES32/$PROGRAMFILES64 or $LOCALAPPDATA)
+	!define /ifndef MULTIUSER_INSTALLMODE_APPDATA 0 ; set to 1 to install ProgramData (Shared App Data)	when elevated
 	!define /ifndef MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME}" ; registry key for UNINSTALL info, placed under [HKLM|HKCU]\Software\Microsoft\Windows\CurrentVersion\Uninstall  (can be ${PRODUCT_NAME} or some {GUID})	
 	!define /ifndef MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY "Microsoft\Windows\CurrentVersion\Uninstall\${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY}" ; registry key where InstallLocation is stored, placed under [HKLM|HKCU]\Software (can be ${PRODUCT_NAME} or some {GUID})	
 	!define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY}" ; full path to registry key storing uninstall information displayed in Windows installed programs list
@@ -186,10 +187,17 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${else}			
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""
 				; Set default installation location for installer
-				${if} ${MULTIUSER_INSTALLMODE_64_BIT} == 0
-					StrCpy $INSTDIR "$PROGRAMFILES32\${MULTIUSER_INSTALLMODE_INSTDIR}"
+				${if} ${MULTIUSER_INSTALLMODE_APPDATA} == 1
+				  ${AndIf} "$APPDATA" != ""
+					; There is a shfolder.dll that emulates CSIDL_LOCAL_APPDATA for older versions of shell32.dll which doesn't support it (pre-Win2k versions)
+					; This shfolder.dll is bundeled with IE5 (or as part of Platform SDK Redistributable) that can be installed on NT4 and NSIS (at least since v3.01) will use it instead of shell32.dll if it is available
+					StrCpy $INSTDIR "$APPDATA\${MULTIUSER_INSTALLMODE_INSTDIR}"
 				${else}
-					StrCpy $INSTDIR "$PROGRAMFILES64\${MULTIUSER_INSTALLMODE_INSTDIR}"
+					${if} ${MULTIUSER_INSTALLMODE_64_BIT} == 0
+						StrCpy $INSTDIR "$PROGRAMFILES32\${MULTIUSER_INSTALLMODE_INSTDIR}"
+					${else}
+						StrCpy $INSTDIR "$PROGRAMFILES64\${MULTIUSER_INSTALLMODE_INSTDIR}"
+					${endif}
 				${endif}
 			!endif
 		${endif}	
