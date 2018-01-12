@@ -187,6 +187,10 @@ Section /o "Quick Launch" SectionQuickLaunchIcon
 SectionEnd
 SectionGroupEnd
 
+Section "-Write Install Size" ; hidden section, write install size as the final step
+	!insertmacro MULTIUSER_RegistryAddInstallSizeInfo
+SectionEnd
+
 ; Callbacks 
 Function .onInit
 	!insertmacro CheckPlatform ${PLATFORM}

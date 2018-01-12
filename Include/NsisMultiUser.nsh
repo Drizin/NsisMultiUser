@@ -918,11 +918,19 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!endif	
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "NoModify" 1
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "NoRepair" 1
+
+	!verbose pop 
+!macroend
+
+!macro MULTIUSER_RegistryAddInstallSizeInfo
+	!verbose push
+	!verbose 3	
+	
 	${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2 ; get folder size, convert to KB
 	IntFmt $0 "0x%08X" $0
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "EstimatedSize" "$0"
-
-	!verbose pop 
+	
+	!verbose pop 	
 !macroend
 
 !macro MULTIUSER_RegistryRemoveInstallInfo
