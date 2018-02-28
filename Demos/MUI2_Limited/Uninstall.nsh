@@ -6,7 +6,7 @@ ShowUninstDetails show
 ; Pages
 !define MUI_UNABORTWARNING ; Show a confirmation when cancelling the installation
 
-!define MULTIUSER_INSTALLMODE_CHANGE_MODE_UNFUNCTION un.PageInstallModeChangeMode
+!define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION un.PageInstallModeChangeMode
 !insertmacro MULTIUSER_UNPAGE_INSTALLMODE
 
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW un.PageComponentsShow
