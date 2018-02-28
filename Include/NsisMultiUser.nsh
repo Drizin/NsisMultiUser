@@ -646,9 +646,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			!endif
 		!endif
 		
-		!ifdef MUI_PAGE_FUNCTION_CUSTOM_PRE
-			Call "${MUI_PAGE_FUNCTION_CUSTOM_PRE}"
-			!undef MUI_PAGE_FUNCTION_CUSTOM_PRE
+		!ifdef MUI_PAGE_CUSTOMFUNCTION_PRE
+			Call "${MUI_PAGE_CUSTOMFUNCTION_PRE}"
+			!undef MUI_PAGE_CUSTOMFUNCTION_PRE
 		!endif
 		nsDialogs::Create 1018
 		Pop $MultiUser.InstallModePage		
@@ -727,9 +727,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!endif	
 		!endif	
 		
-		!ifdef MUI_PAGE_FUNCTION_CUSTOM_SHOW
-			Call "${MUI_PAGE_FUNCTION_CUSTOM_SHOW}"
-			!undef MUI_PAGE_FUNCTION_CUSTOM_SHOW
+		!ifdef MUI_PAGE_CUSTOMFUNCTION_SHOW
+			Call "${MUI_PAGE_CUSTOMFUNCTION_SHOW}"
+			!undef MUI_PAGE_CUSTOMFUNCTION_SHOW
 		!endif		
 		nsDialogs::Show
 	FunctionEnd
@@ -783,9 +783,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${endif}
 		!endif
 
-		!ifdef MUI_PAGE_FUNCTION_CUSTOM_LEAVE
-			Call "${MUI_PAGE_FUNCTION_CUSTOM_LEAVE}"
-			!undef MUI_PAGE_FUNCTION_CUSTOM_LEAVE
+		!ifdef MUI_PAGE_CUSTOMFUNCTION_LEAVE
+			Call "${MUI_PAGE_CUSTOMFUNCTION_LEAVE}"
+			!undef MUI_PAGE_CUSTOMFUNCTION_LEAVE
 		!endif
 	FunctionEnd
 
