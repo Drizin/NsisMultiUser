@@ -24,7 +24,7 @@
 !if ${PLATFORM} == "Win64"
 	!define MULTIUSER_INSTALLMODE_64_BIT 1
 !endif
-!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"  
+!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"	
 
 ; Installer Attributes
 Name "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"
@@ -126,7 +126,7 @@ Section "Core Files (required)" SectionCoreFiles
 		${endif}		
 			
 		Delete "$2\${UNINSTALL_FILENAME}"	; the uninstaller doesn't delete itself when not copied to the temp directory
-		RMDir "$2"  	
+		RMDir "$2"		
 	${endif}	
 		
 	SetOutPath $INSTDIR
@@ -154,35 +154,38 @@ SectionGroup /e "Integration" SectionGroupIntegration
 Section "Program Group" SectionProgramGroup
 	SectionIn 1	3
 	
-	CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
-	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}$0"
+	CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}$0\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 		
 	!ifdef LICENSE_FILE
-		CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\License Agreement.lnk" "$INSTDIR\${LICENSE_FILE}"	
+		CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}$0\License Agreement.lnk" "$INSTDIR\${LICENSE_FILE}"	
 	!endif
 	${if} $MultiUser.InstallMode == "AllUsers" 
-		CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/allusers"
+		CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}$0\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/allusers"
 	${else}
-		CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall (current user).lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/currentuser"
+		CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}$0\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/currentuser"
 	${endif}
 SectionEnd
 
 Section "Dektop Icon" SectionDesktopIcon
 	SectionIn 1 3
 
-	CreateShortCut "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"	
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	CreateShortCut "$DESKTOP\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"	
 SectionEnd
 
 Section /o "Start Menu Icon" SectionStartMenuIcon
 	SectionIn 3
 
-	CreateShortCut "$STARTMENU\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	CreateShortCut "$STARTMENU\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 
 Section /o "Quick Launch" SectionQuickLaunchIcon
 	SectionIn 3
 
-  ; The QuickLaunch is always only for the current user
+	; The $QUICKLAUNCH folder is always only for the current user
 	CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 SectionGroupEnd
@@ -199,7 +202,7 @@ Function .onInit
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
 	${endif}	
 
-	!insertmacro MULTIUSER_INIT	  
+	!insertmacro MULTIUSER_INIT		
 FunctionEnd
 
 Function EmptyCallback
@@ -233,10 +236,10 @@ Function PageDirectoryShow
 FunctionEnd
 
 Function .onUserAbort
-  MessageBox MB_YESNO|MB_ICONEXCLAMATION "Are you sure you want to quit $(^Name) Setup?" IDYES mui.quit
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Are you sure you want to quit $(^Name) Setup?" IDYES mui.quit
 
-  Abort
-  mui.quit:	
+	Abort
+	mui.quit:	
 FunctionEnd
 
 Function .onInstFailed

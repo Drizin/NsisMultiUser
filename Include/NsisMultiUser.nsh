@@ -58,10 +58,11 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!endif		
 	!define /ifndef MULTIUSER_INSTALLMODE_64_BIT 0 ; set to 1 for 64-bit installers	
 	!define /ifndef MULTIUSER_INSTALLMODE_INSTDIR "${PRODUCT_NAME}" ; suggested name of directory to install (under $PROGRAMFILES32/$PROGRAMFILES64 or $LOCALAPPDATA)
-	!define /ifndef MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME}" ; registry key for UNINSTALL info, placed under [HKLM|HKCU]\Software\Microsoft\Windows\CurrentVersion\Uninstall  (can be ${PRODUCT_NAME} or some {GUID})	
+	
+	!define /ifndef MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME}" ; registry key for UNINSTALL info, placed under [HKLM|HKCU]\Software\Microsoft\Windows\CurrentVersion\Uninstall	(can be ${PRODUCT_NAME} or some {GUID})	
 	!define /ifndef MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY "Microsoft\Windows\CurrentVersion\Uninstall\${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY}" ; registry key where InstallLocation is stored, placed under [HKLM|HKCU]\Software (can be ${PRODUCT_NAME} or some {GUID})	
-	!define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY}" ; full path to registry key storing uninstall information displayed in Windows installed programs list
-	!define MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY2 "Software\${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY}" ; full path to registry key where InstallLocation is stored 	
+	!define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY}" ; full path to registry key storing uninstall information displayed in Windows installed programs list
+	!define MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH "Software\${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY}" ; full path to registry key where InstallLocation is stored 		
 	!define /ifndef UNINSTALL_FILENAME "uninstall.exe" ; name of uninstaller	
 	!define /ifndef MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION}" ; display name in Windows uninstall list of programs	
 	!define /ifndef MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME "InstallLocation" ; name of the registry value containing install directory
@@ -341,17 +342,17 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${endif}
 			
 		; initialize PerXXXInstallationVersion, PerXXXInstallationFolder, PerXXXUninstallString variables
-		ReadRegStr $PerMachineInstallationVersion HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayVersion"
-		ReadRegStr $PerMachineInstallationFolder HKLM "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY2}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" ; "InstallLocation"
-		ReadRegStr $PerMachineUninstallString HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "UninstallString" ; contains the /currentuser or /allusers parameter
+		ReadRegStr $PerMachineInstallationVersion HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "DisplayVersion"
+		ReadRegStr $PerMachineInstallationFolder HKLM "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" ; "InstallLocation"
+		ReadRegStr $PerMachineUninstallString HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "UninstallString" ; contains the /currentuser or /allusers parameter
 		${if} $PerMachineInstallationFolder == ""
 			StrCpy $HasPerMachineInstallation 0
 		${else}
 			StrCpy $HasPerMachineInstallation 1
 		${endif}
-		ReadRegStr $PerUserInstallationVersion HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayVersion"
-		ReadRegStr $PerUserInstallationFolder HKCU "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY2}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" ; "InstallLocation"
-		ReadRegStr $PerUserUninstallString HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "UninstallString" ; contains the /currentuser or /allusers parameter
+		ReadRegStr $PerUserInstallationVersion HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "DisplayVersion"
+		ReadRegStr $PerUserInstallationFolder HKCU "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" ; "InstallLocation"
+		ReadRegStr $PerUserUninstallString HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "UninstallString" ; contains the /currentuser or /allusers parameter
 		${if} $PerUserInstallationFolder == ""
 			StrCpy $HasPerUserInstallation 0
 		${else}
@@ -481,7 +482,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				; - using ExecWait fails if the new process requires elevation, see http://forums.winamp.com/showthread.php?p=3080202&posted=1#post3080202, so we use ShellExecuteEx
 				System::Call '*(i 60, i 0x140, i 0, t "open", t "$1\${UNINSTALL_FILENAME}", t "$R0 _?=$1", t, i ${SW_SHOW}, i, i, t, i, i, i, i) p .r9' ; allocate and fill values for SHELLEXECUTEINFO structure, returned in $9 (0x140 = SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOASYNC)	
 				
-				System::Call 'shell32::ShellExecuteEx(i r9) i .r0'  
+				System::Call 'shell32::ShellExecuteEx(i r9) i .r0'	
 				${if} $0 != 1
 					SetErrorLevel $2
 					Quit
@@ -672,7 +673,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		Pop $MultiUser.InstallModePage.AllUsers	
 		
 		System::Call "advapi32::GetUserName(t.r0,*i${NSIS_MAX_STRLEN})i"		
-		StrCpy $9 "Only for me ($0)"  
+		StrCpy $9 "Only for me ($0)"	
 		${NSD_CreateRadioButton} 30u 45% 10u 8u ""	
 		Pop $MultiUser.InstallModePage.CurrentUser 
 		
@@ -901,52 +902,82 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!endif
 !macroend
 
+!macro MULTIUSER_GetCurrentUserString VAR
+	StrCpy $${VAR} ""
+	!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} != 0
+		${if} $MultiUser.InstallMode == "CurrentUser" 
+			StrCpy $${VAR} " (current user)"
+		${endif}
+	!endif				
+!macroend
+
 !macro MULTIUSER_RegistryAddInstallInfo
 	!verbose push
-	!verbose 3
+	!verbose 3	
+	Push "$0"
 
 	; Write the installation path into the registry
-	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY2}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" "$INSTDIR" ; "InstallLocation"
+	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" "$INSTDIR" ; "InstallLocation"
 
 	; Write the uninstall keys for Windows
+	; Workaround for Windows issue: if the uninstall key names are the same in HKLM and HKCU, Windows displays only one entry in the add/remove programs dialog;
+	; this will create 2 different keys in HKCU (MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH and MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH),
+	; but that's OK, both will be removed by uninstaller
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	
 	${if} $MultiUser.InstallMode == "AllUsers" ; setting defaults
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME}"
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /allusers' 
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME}"
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /allusers' 
 	${else}
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME} (current user)" ; "add/remove programs" will show if installation is per-user
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /currentuser' 
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME} (current user)" ; "add/remove programs" will show if installation is per-user
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /currentuser' 
 	${endif}
 
-	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayVersion" "${VERSION}"
-	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayIcon" "$INSTDIR\${PROGEXE},0"
+	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayVersion" "${VERSION}"
+	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayIcon" "$INSTDIR\${PROGEXE},0"
 	!ifdef COMPANY_NAME
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "Publisher" "${COMPANY_NAME}"
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "Publisher" "${COMPANY_NAME}"
 	!endif	
-	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "NoModify" 1
-	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "NoRepair" 1
+	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoModify" 1
+	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoRepair" 1
 
+	Pop $0
 	!verbose pop 
 !macroend
 
 !macro MULTIUSER_RegistryAddInstallSizeInfo
 	!verbose push
 	!verbose 3	
+	Push "$0"
+	Push "$1"
+	Push "$2"
+	Push "$3"
+
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+
+	${GetSize} "$INSTDIR" "/S=0K" $1 $2 $3 ; get folder size, convert to KB
+	IntFmt $1 "0x%08X" $1
+	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "EstimatedSize" "$1"
 	
-	${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2 ; get folder size, convert to KB
-	IntFmt $0 "0x%08X" $0
-	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "EstimatedSize" "$0"
-	
+	Pop $3
+	Pop $2
+	Pop $1
+	Pop $0
 	!verbose pop 	
 !macroend
 
 !macro MULTIUSER_RegistryRemoveInstallInfo
 	!verbose push
 	!verbose 3
+	Push "$0"
 
 	; Remove registry keys
-	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}"
-	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY2}"
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	
+	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0"
+	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}"
  
+	Pop $0
 	!verbose pop 
 !macroend
 

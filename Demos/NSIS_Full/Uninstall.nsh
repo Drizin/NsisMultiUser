@@ -23,21 +23,24 @@ Section "un.Program Files" SectionUninstallProgram
 	; Clean up "Documentation"
 	!insertmacro un.DeleteRetryAbort "$INSTDIR\readme.txt"
 	
-  ; Clean up "Program Group" 
-	RMDir /r "$SMPROGRAMS\${PRODUCT_NAME}"
+	; Clean up "Program Group" 
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	RMDir /r "$SMPROGRAMS\${PRODUCT_NAME}$0"
 
-  ; Clean up "Dektop Icon"
-	!insertmacro un.DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}.lnk"
+	; Clean up "Dektop Icon"
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	!insertmacro un.DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
 	
-  ; Clean up "Start Menu Icon"
-	!insertmacro un.DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}.lnk"
+	; Clean up "Start Menu Icon"
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	!insertmacro un.DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
 		
-  ; Clean up "Quick Launch Icon"
+	; Clean up "Quick Launch Icon"
 	!insertmacro un.DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"	
 SectionEnd
 
 Section /o "un.Program Settings" SectionRemoveSettings
-  ; this section is executed only explicitly and shouldn't be placed in SectionUninstallProgram
+	; this section is executed only explicitly and shouldn't be placed in SectionUninstallProgram
 	DeleteRegKey HKCU "Software\${PRODUCT_NAME}"			
 SectionEnd
 
@@ -45,9 +48,9 @@ Section "-Uninstall" ; hidden section, must always be the last one!
 	; Remove the uninstaller from registry as the very last step - if sth. goes wrong, let the user run it again
 	!insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys
 		
-  Delete "$INSTDIR\${UNINSTALL_FILENAME}"	
-  ; remove the directory only if it is empty - the user might have saved some files in it		
-	RMDir "$INSTDIR"  		
+	Delete "$INSTDIR\${UNINSTALL_FILENAME}"	
+	; remove the directory only if it is empty - the user might have saved some files in it		
+	RMDir "$INSTDIR"			
 SectionEnd
 
 ; Callbacks
@@ -94,10 +97,10 @@ Function un.PageComponentsShow
 FunctionEnd
 
 Function un.onUserAbort
-  MessageBox MB_YESNO|MB_ICONEXCLAMATION "Are you sure you want to quit $(^Name) Uninstall?" IDYES mui.quit
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Are you sure you want to quit $(^Name) Uninstall?" IDYES mui.quit
 
-  Abort
-  mui.quit:	
+	Abort
+	mui.quit:	
 FunctionEnd
 
 

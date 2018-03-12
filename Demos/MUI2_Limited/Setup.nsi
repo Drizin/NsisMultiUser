@@ -7,6 +7,7 @@
 !include NsisMultiUser.nsh
 !include LogicLib.nsh
 !include ".\..\Common\Utils.nsh"
+!insertmacro DeleteRetryAbortFunc "" ; define installer Function DeleteRetryAbort, not normally used
 
 !define PRODUCT_NAME "NsisMultiUser MUI2 Limited Demo" ; name of the application as displayed to the user
 !define VERSION "1.0" ; main version of the application (may be 0.1, alpha, beta, etc.)
@@ -25,7 +26,7 @@
 !if ${PLATFORM} == "Win64"
 	!define MULTIUSER_INSTALLMODE_64_BIT 1
 !endif
-!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"  
+!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"	
 
 Var StartMenuFolder
 
@@ -70,6 +71,7 @@ SetCompressor /SOLID lzma
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageStartMenuPre
 !insertmacro MUI_PAGE_STARTMENU "" "$StartMenuFolder"
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}" ; the MUI_PAGE_STARTMENU macro undefines MUI_STARTMENUPAGE_DEFAULTFOLDER, but we need it
 
 !insertmacro MUI_PAGE_INSTFILES
 
@@ -90,7 +92,7 @@ Section "Core Files (required)" SectionCoreFiles
 				
 	${if} $HasCurrentModeInstallation == 1 ; if there's an installed version, remove all optinal components (except "Core Files")
 		; Clean up "Documentation"
-		Delete "$INSTDIR\readme.txt"
+		!insertmacro DeleteRetryAbort "$INSTDIR\readme.txt"
 	
 		; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
 		${if} "$StartMenuFolder" != ""
@@ -98,13 +100,25 @@ Section "Core Files (required)" SectionCoreFiles
 		${endif}	
 	
 		; Clean up "Dektop Icon"
-		Delete "$DESKTOP\${PRODUCT_NAME}.lnk"
+		StrCpy $0 "$DESKTOP\${PRODUCT_NAME}.lnk"
+		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} != 0
+			${if} $MultiUser.InstallMode == "CurrentUser" 
+				StrCpy $0 "$DESKTOP\${PRODUCT_NAME} (current user).lnk"
+			${endif}	
+		!endif		
+		!insertmacro DeleteRetryAbort "$0"
 		
 		; Clean up "Start Menu Icon"
-		Delete "$STARTMENU\${PRODUCT_NAME}.lnk"
+		StrCpy $0 "$STARTMENU\${PRODUCT_NAME}.lnk"
+		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} != 0
+			${if} $MultiUser.InstallMode == "CurrentUser" 
+				StrCpy $0 "$STARTMENU\${PRODUCT_NAME} (current user).lnk"
+			${endif}	
+		!endif				
+		!insertmacro DeleteRetryAbort "$0"
 			
 		; Clean up "Quick Launch Icon"
-		Delete "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"		
+		!insertmacro DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"		
 	${endif}
 
 	SetOutPath $INSTDIR
@@ -132,10 +146,10 @@ SectionGroup /e "Integration" SectionGroupIntegration
 Section "Program Group" SectionProgramGroup
 	SectionIn 1	3
 	
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN ""
+	!insertmacro MUI_STARTMENU_WRITE_BEGIN ""
 
-	  CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-	  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+		CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
+		CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 			
 		!ifdef LICENSE_FILE
 			CreateShortCut "$SMPROGRAMS\$StartMenuFolder\License Agreement.lnk" "$INSTDIR\${LICENSE_FILE}"	
@@ -143,28 +157,30 @@ Section "Program Group" SectionProgramGroup
 		${if} $MultiUser.InstallMode == "AllUsers" 
 			CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/allusers"
 		${else}
-			CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall (current user).lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/currentuser"
+			CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/currentuser"
 		${endif}
 	
-  !insertmacro MUI_STARTMENU_WRITE_END	
+	!insertmacro MUI_STARTMENU_WRITE_END	
 SectionEnd
 
 Section "Dektop Icon" SectionDesktopIcon
 	SectionIn 1 3
 
-	CreateShortCut "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"	
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	CreateShortCut "$DESKTOP\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"	
 SectionEnd
 
 Section /o "Start Menu Icon" SectionStartMenuIcon
 	SectionIn 3
 
-	CreateShortCut "$STARTMENU\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+	!insertmacro MULTIUSER_GetCurrentUserString 0
+	CreateShortCut "$STARTMENU\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 
 Section /o "Quick Launch" SectionQuickLaunchIcon
 	SectionIn 3
 
-  ; The QuickLaunch is always only for the current user
+	; The $QUICKLAUNCH folder is always only for the current user
 	CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 SectionGroupEnd
@@ -178,7 +194,7 @@ SectionEnd
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionCoreFiles} "Core files requred to run ${PRODUCT_NAME}."
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionDocumentation} "Help files for ${PRODUCT_NAME}."
 	
-  !insertmacro MUI_DESCRIPTION_TEXT ${SectionGroupIntegration} "Select how to integrate the program in Windows."
+	!insertmacro MUI_DESCRIPTION_TEXT ${SectionGroupIntegration} "Select how to integrate the program in Windows."
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionProgramGroup} "Create a ${PRODUCT_NAME} program group under Start Menu > Programs."
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionDesktopIcon} "Create ${PRODUCT_NAME} icon on the Desktop."
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionStartMenuIcon} "Create ${PRODUCT_NAME} icon in the Start Menu."
@@ -193,7 +209,7 @@ Function .onInit
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
 	${endif}	
 
-	!insertmacro MULTIUSER_INIT	  
+	!insertmacro MULTIUSER_INIT		
 FunctionEnd
 
 Function PageWelcomeLicensePre		
@@ -204,6 +220,11 @@ FunctionEnd
 
 Function PageInstallModeChangeMode
 	!insertmacro MUI_STARTMENU_GETFOLDER "" $StartMenuFolder
+	
+	${if} "$StartMenuFolder" == "${MUI_STARTMENUPAGE_DEFAULTFOLDER}"
+		!insertmacro MULTIUSER_GetCurrentUserString 0
+		StrCpy $StartMenuFolder "$StartMenuFolder$0"
+	${endif}	
 FunctionEnd
 
 Function PageDirectoryPre	
