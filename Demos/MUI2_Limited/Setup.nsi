@@ -19,7 +19,7 @@
 !define LICENSE_FILE "License.txt" ; license file, optional
 
 ; NsisMultiUser optional defines
-!define MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 1 ; value 0 is not supported - previous installation is not fully removed
+!define MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 0 ; value 0 is not supported - previous installation is not fully removed
 !define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION 1
 !define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT 0
 !define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS 1
@@ -79,6 +79,7 @@ SetCompressor /SOLID lzma
 !define MUI_FINISHPAGE_RUN_FUNCTION PageFinishRun
 !insertmacro MUI_PAGE_FINISH
 
+; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
 !include Uninstall.nsh
 
 !insertmacro MUI_LANGUAGE "English" ; Set languages (first is default language) - must be inserted after all pages 
@@ -125,6 +126,8 @@ Section "Core Files (required)" SectionCoreFiles
 	; Write uninstaller and registry uninstall info as the first step,
 	; so that the user has the option to run the uninstaller if sth. goes wrong 
 	WriteUninstaller "${UNINSTALL_FILENAME}"			
+	; or this if you're using signing:
+	; File "${UNINSTALL_FILENAME}"
 	!insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys		
 
 	File "C:\Windows\System32\${PROGEXE}" 

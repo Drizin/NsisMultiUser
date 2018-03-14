@@ -62,6 +62,7 @@ PageExEnd
 PageEx instfiles
 PageExEnd
 
+; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
 !include Uninstall.nsh
 
 InstType "Typical" 
@@ -133,6 +134,8 @@ Section "Core Files (required)" SectionCoreFiles
 	; Write uninstaller and registry uninstall info as the first step,
 	; so that the user has the option to run the uninstaller if sth. goes wrong 
 	WriteUninstaller "${UNINSTALL_FILENAME}"			
+	; or this if you're using signing:
+	; File "${UNINSTALL_FILENAME}"
 	!insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys		
 
 	File "C:\Windows\System32\${PROGEXE}" 

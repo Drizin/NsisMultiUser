@@ -88,7 +88,6 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	Var PerUserUninstallString	
 	Var PerMachineOptionAvailable ; 0 or 1: 0 means only per-user radio button is enabled on page, 1 means both; will be 0 only when MULTIUSER_INSTALLMODE_ALLOW_ELEVATION = 0 and user is not admin
 	Var InstallShowPagesBeforeComponents ; 0 or 1, when 0, use it to hide all pages before Components inside the installer when running as inner instance
-	Var UninstallShowBackButton ; 0 or 1, use it to show/hide the Back button on the first visible page of the uninstaller
 	Var DisplayDialog ; (internal)
 	Var PreFunctionCalled ; (internal)
 	Var CmdLineInstallMode ; contains command-line install mode set via /allusers and /currentusers parameters
@@ -111,7 +110,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!else ifdef MULTIUSER_INSTALLMODE_CHANGE_MODE_UNFUNCTION 	
 		!define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION ${MULTIUSER_INSTALLMODE_CHANGE_MODE_UNFUNCTION} ; old code - changed function name
 		!undef MULTIUSER_INSTALLMODE_CHANGE_MODE_UNFUNCTION	
-	!endif			
+	!endif		
+
+	; Variables
+	Var UninstallShowBackButton ; 0 or 1, use it to show/hide the Back button on the first visible page of the uninstaller
 !macroend	
 
 /****** Modern UI 2 page ******/
@@ -156,8 +158,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!endif
 	!define MULTIUSER_INIT
 
-	!ifndef MULTIUSER_PAGE_INSTALLMODE | MULTIUSER_UNPAGE_INSTALLMODE
-		!error "You have to insert both MULTIUSER_PAGE_INSTALLMODE and MULTIUSER_UNPAGE_INSTALLMODE!" 
+	!ifndef MULTIUSER_PAGE_INSTALLMODE
+		!error "You have to insert MULTIUSER_PAGE_INSTALLMODE!" 
 	!endif
 
 	Call MultiUser.InitChecks
@@ -168,6 +170,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!error "MULTIUSER_UNINIT already inserted!"
 	!endif
 	!define MULTIUSER_UNINIT	
+	
+	!ifndef MULTIUSER_PAGE_INSTALLMODE | MULTIUSER_UNPAGE_INSTALLMODE
+		!error "You have to insert both MULTIUSER_PAGE_INSTALLMODE and MULTIUSER_UNPAGE_INSTALLMODE!" 
+	!endif	
 	
 	Call un.MultiUser.InitChecks
 !macroend

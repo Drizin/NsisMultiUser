@@ -1,4 +1,6 @@
-Var RunningFromInstaller
+!insertmacro DeleteRetryAbortFunc "un."
+
+Var RunningFromInstaller ; installer started uninstaller using /uninstall parameter
 
 ; Installer Attributes
 ShowUninstDetails show 

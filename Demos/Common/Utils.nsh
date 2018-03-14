@@ -58,8 +58,6 @@
 	FunctionEnd
 !macroend
 
-!insertmacro DeleteRetryAbortFunc "un."
-
 !macro DeleteRetryAbort filename
 	Push "$0"
 	
