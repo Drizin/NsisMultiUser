@@ -136,7 +136,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	PageExEnd	
 	
 	!ifmacrodef MUI_${UNINSTALLER_PREFIX}PAGE_END
-		!insertmacro MUI_${UNINSTALLER_PREFIX}PAGE_END ; MUI 1 MUI_UNPAGE_END macro
+		!insertmacro MUI_${UNINSTALLER_PREFIX}PAGE_END ; MUI1 MUI_UNPAGE_END macro
 	!endif	
 !macroend
 
@@ -317,6 +317,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	FunctionEnd		
 		
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InitChecks		
+		Push "$R0"
+		Push "$R1"
+		Push "$0"
+		
 		; Installer initialization - check privileges and set default install mode	
 		StrCpy $MultiUser.InstallMode ""
 		StrCpy $PerMachineOptionAvailable 1
@@ -414,12 +418,15 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		
 			!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
-					!insertmacro UAC_AsUser_Call Function ${UNINSTALLER_FUNCPREFIX}MultiUser.GetInstallMode ${UAC_SYNCREGISTERS}
+					!insertmacro UAC_AsUser_Call Function MultiUser.GetInstallMode ${UAC_SYNCREGISTERS}
 					${if} $0 == "CurrentUser"
 						; the inner instance was elevated because there is installation per-machine, which needs to be removed and requires admin rights, 
 						; but the user selected per-user installation in the outer instance, set context to CurrentUser
-						Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
+						Call MultiUser.InstallMode.CurrentUser
 						StrCpy $DisplayDialog 0
+						Pop $0
+						Pop $R1
+						Pop $R0						
 						Return
 					${endif}	
 				!endif
@@ -427,6 +434,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers ; Inner Process (and Admin) - set to AllUsers
 			StrCpy $DisplayDialog 0
+			Pop $0
+			Pop $R1
+			Pop $R0									
 			Return
 		${endif}	
 		
@@ -472,47 +482,49 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 						SetErrorLevel ${MULTIUSER_ERROR_INVALID_PARAMETERS}
 						Quit
 					${endif}
-					StrCpy $1 "$PerMachineInstallationFolder"
+					StrCpy $0 "$PerMachineInstallationFolder"
 				${else}
 					${if} $HasPerUserInstallation == 0
 						MessageBox MB_ICONSTOP "There is no per-user installation of ${PRODUCT_NAME}." /SD IDOK	
 						SetErrorLevel ${MULTIUSER_ERROR_INVALID_PARAMETERS}
 						Quit
 					${endif}				
-					StrCpy $1 "$PerUserInstallationFolder"			
+					StrCpy $0 "$PerUserInstallationFolder"			
 				${endif}
 				
 				; NOTES: 
 				; - the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for waiting to work
 				; - $R0 passes the original parameters from the installer to the uninstaller (together with /uninstall so that uninstaller knows installer is running and skips opitional single instance checks)
 				; - using ExecWait fails if the new process requires elevation, see http://forums.winamp.com/showthread.php?p=3080202&posted=1#post3080202, so we use ShellExecuteEx
-				System::Call '*(i 60, i 0x140, i 0, t "open", t "$1\${UNINSTALL_FILENAME}", t "$R0 _?=$1", t, i ${SW_SHOW}, i, i, t, i, i, i, i) p .r9' ; allocate and fill values for SHELLEXECUTEINFO structure, returned in $9 (0x140 = SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOASYNC)	
+				System::Call '*(i 60, i 0x140, i 0, t "open", t "$0\${UNINSTALL_FILENAME}", t "$R0 _?=$0", t, i ${SW_SHOW}, i, i, t, i, i, i, i) p .r2' ; allocate and fill values for SHELLEXECUTEINFO structure, returned in $2 (0x140 = SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOASYNC)	
 				
-				System::Call 'shell32::ShellExecuteEx(i r9) i .r0'	
-				${if} $0 != 1
-					SetErrorLevel $2
+				System::Call 'shell32::ShellExecuteEx(i r2) i .r0 ?e'
+				Pop $1
+				${if} $0 == 0
+					SetErrorLevel $1
 					Quit
 				${endif}
 				
-				System::Call '*$9(i, i, i, t, t, t, t, i, i, i, t, i, i, i, i .r8)' ; get the process handle
+				System::Call '*$2(i, i, i, t, t, t, t, i, i, i, t, i, i, i, i .r3)' ; get the process handle in $3
 				
-				System::Call 'kernel32::WaitForSingleObject(i r8, i -1) i .r0 ?e' ; wait indefinitely for the process to exit
+				System::Call 'kernel32::WaitForSingleObject(i r3, i -1) i .r0 ?e' ; wait indefinitely for the process to exit
+				Pop $1
 				${if} $0 != 0 ; WAIT_OBJECT_0
 					SetErrorLevel $1
 					Quit
 				${endif}
 				
-				System::Call 'kernel32::GetExitCodeProcess(i r8, *i .r2) i .r0 ?e'
+				System::Call 'kernel32::GetExitCodeProcess(i r3, *i .r4) i .r0 ?e' ; store exit code in $4
 				Pop $1
-				${if} $0 != 1
+				${if} $0 == 0
 					SetErrorLevel $1
 					Quit
 				${endif}
 				
-				System::Call 'Kernel32::CloseHandle(i r8)'
-				System::Free $0
+				System::Call 'Kernel32::CloseHandle(i r3)' ; close the process handle in $3
+				System::Free $2 ; free SHELLEXECUTEINFO structure, stored in $2 
 				
-				SetErrorLevel $2
+				SetErrorLevel $4 ; return exit code stored in $4
 				Quit
 			${endif}		
 		!endif
@@ -571,6 +583,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckElevationAllowed ; if we are displaying the dialog and elevation is required, check if elevation is allowed
 				${endif}									
 			${endif}				
+			Pop $0
+			Pop $R1
+			Pop $R0												
 			Return
 		${endif}		
 				
@@ -578,6 +593,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${ifnot} ${IsNT} ; Not running Windows NT, (so it's Windows 95/98/ME), so per-user installation not supported
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers	
 			StrCpy $DisplayDialog 0
+			Pop $0
+			Pop $R1
+			Pop $R0												
 			Return
 		${endif}	
 		
@@ -636,9 +654,16 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				!endif
 			${endif}
 		${endif}		
+		
+		Pop $0
+		Pop $R1
+		Pop $R0											
 	FunctionEnd
 	
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModePre
+		Push "$0"
+		Push "$1"
+		
 		${if} $IsInnerInstance == 1
 			${andif} $PreFunctionCalled == 1
 			; user pressed Back button on the first visible page in the inner instance - display outer instance
@@ -674,27 +699,27 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!endif
 		Pop $MultiUser.InstallModePage.Text
 
-		StrCpy $8 "Anyone who uses this computer (all users)" 
+		StrCpy $0 "Anyone who uses this computer (all users)" 
 		${NSD_CreateRadioButton} 30u 30% 10u 8u ""	
 		Pop $MultiUser.InstallModePage.AllUsers	
 		
-		System::Call "advapi32::GetUserName(t.r0,*i${NSIS_MAX_STRLEN})i"		
-		StrCpy $9 "Only for me ($0)"	
+		System::Call "advapi32::GetUserName(t.r1,*i${NSIS_MAX_STRLEN})i"		
+		StrCpy $1 "Only for me ($1)"	
 		${NSD_CreateRadioButton} 30u 45% 10u 8u ""	
 		Pop $MultiUser.InstallModePage.CurrentUser 
 		
 		; We create the radio buttons with empty text and create separate labels, because radio button font color can't be changed with XP Styles turned on,
 		; which creates problems with UMUI themes, see http://forums.winamp.com/showthread.php?p=3079742#post3079742
 		; shortcuts (&) for labels don't work and cause strange behaviour in NSIS - going to another page, etc.
-		${NSD_CreateLabel} 44u 30% 280u 8u "$8"
+		${NSD_CreateLabel} 44u 30% 280u 8u "$0"
 		Pop $MultiUser.InstallModePage.AllUsersLabel
 		nsDialogs::SetUserData $MultiUser.InstallModePage.AllUsersLabel $MultiUser.InstallModePage.AllUsers						
-		${NSD_CreateLabel} 44u 45% 280u 8u "$9"
+		${NSD_CreateLabel} 44u 45% 280u 8u "$1"
 		Pop $MultiUser.InstallModePage.CurrentUserLabel
 		nsDialogs::SetUserData $MultiUser.InstallModePage.CurrentUserLabel $MultiUser.InstallModePage.CurrentUser		
 
 		${if} $PerMachineOptionAvailable == 0 ; install per-machine is not available
-			SendMessage $MultiUser.InstallModePage.AllUsersLabel ${WM_SETTEXT} 0 "STR:$8 (must run as admin)" ; only when $PerMachineOptionAvailable == 0, we add that comment to the disabled control itself
+			SendMessage $MultiUser.InstallModePage.AllUsersLabel ${WM_SETTEXT} 0 "STR:$0 (must run as admin)" ; only when $PerMachineOptionAvailable == 0, we add that comment to the disabled control itself
 			${orif} $CmdLineInstallMode != ""			
 			EnableWindow $MultiUser.InstallModePage.AllUsersLabel 0 ; start out disabled
 			EnableWindow $MultiUser.InstallModePage.AllUsers 0 ; start out disabled			
@@ -712,12 +737,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		; bind to radiobutton change
 		${NSD_OnClick} $MultiUser.InstallModePage.CurrentUser ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionClick
 		${NSD_OnClick} $MultiUser.InstallModePage.AllUsers ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionClick
-		
-		!if "${UNINSTALLER_FUNCPREFIX}" == ""
-			GetFunctionAddress $0 MultiUser.BackButtonClick 
-			nsDialogs::OnBack $0
-		!endif	
-		
+				
 		${NSD_CreateLabel} 0u -32u 100% 32u "" ; will hold up to 4 lines of text
 		Pop $MultiUser.InstallModePage.Description
 
@@ -729,26 +749,42 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.SetShieldAndTexts ; simulating click on the control will change $INSTDIR and reset a possible user selection
 		
 		!ifmacrodef UMUI_IOPAGEBGTRANSPARENT_INIT ; UMUI, apply theme to controls
-		!ifndef USE_MUIEx ; for MUIEx, applying themes causes artifacts
-			!insertmacro UMUI_IOPAGEBGTRANSPARENT_INIT $MultiUser.InstallModePage 
-			!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.Text 			
-			!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.AllUsers	
-			!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.AllUsersLabel 			
-			!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.CurrentUser
-			!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.CurrentUserLabel 
-			!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.Description			
+			!ifndef USE_MUIEx ; for MUIEx, applying themes causes artifacts
+				!insertmacro UMUI_IOPAGEBGTRANSPARENT_INIT $MultiUser.InstallModePage 
+				!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.Text 			
+				!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.AllUsers	
+				!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.AllUsersLabel 			
+				!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.CurrentUser
+				!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.CurrentUserLabel 
+				!insertmacro UMUI_IOPAGECTLTRANSPARENT_INIT $MultiUser.InstallModePage.Description			
+			!endif	
 		!endif	
-		!endif	
+
+		Pop $1
+		Pop $0
 		
 		!ifdef MUI_PAGE_CUSTOMFUNCTION_SHOW
 			Call "${MUI_PAGE_CUSTOMFUNCTION_SHOW}"
 			!undef MUI_PAGE_CUSTOMFUNCTION_SHOW
 		!endif		
-		nsDialogs::Show
+		
+		nsDialogs::Show		
+		
+		!if "${UNINSTALLER_FUNCPREFIX}" == ""
+			Push "$0"
+			GetDlgItem $0 $HWNDPARENT 1
+			SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD	on page leave (InstallModeLeave is called only on Next button click)
+			Pop $0
+		!endif		
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeLeave
-		!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION} == 1 ; if elevation is allowed
+		Push "$0"
+		Push "$1"
+		Push "$2"
+		Push "$3"
+		
+		!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION} == 1 ; if elevation is allowed		
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
 			
 			${if} $0 == 1
@@ -796,6 +832,11 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${endif}
 		!endif
 
+		Pop $3
+		Pop $2
+		Pop $1
+		Pop $0
+
 		!ifdef MUI_PAGE_CUSTOMFUNCTION_LEAVE
 			Call "${MUI_PAGE_CUSTOMFUNCTION_LEAVE}"
 			!undef MUI_PAGE_CUSTOMFUNCTION_LEAVE
@@ -803,7 +844,11 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.SetShieldAndTexts
-		GetDlgItem $1 $hwndParent 1 ; get item 1 (next button) at parent window, store in $0 - (0 is back, 1 is next .. what about CANCEL? http://nsis.sourceforge.net/Buttons_Header )
+		Push "$0"
+		Push "$1"
+		Push "$2"
+		
+		GetDlgItem $1 $hwndParent 1 ; get item 1 (next button) at parent window, store in $1 - (0 is back, 1 is next .. what about CANCEL? http://nsis.sourceforge.net/Buttons_Header )
 
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
 		SendMessage $1 ${BCM_SETSHIELD} 0 $0 ; display/hide SHIELD (Windows Vista and above)
@@ -823,103 +868,102 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!endif				
 			
 		; set label text
-		StrCpy $7 ""
+		StrCpy $2 ""
 		${if} $0 == "AllUsers" ; all users
 			${if} $HasPerMachineInstallation == 1
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
-					StrCpy $7 "Version $PerMachineInstallationVersion is already installed per-machine in $PerMachineInstallationFolder$\r$\n"
+					StrCpy $2 "Version $PerMachineInstallationVersion is already installed per-machine in $PerMachineInstallationFolder$\r$\n"
 					${if} $PerMachineInstallationVersion == ${VERSION}
-						StrCpy $7 "$7Will reinstall version ${VERSION}"
+						StrCpy $2 "$2Will reinstall version ${VERSION}"
 					${else}
-						StrCpy $7 "$7Will uninstall version $PerMachineInstallationVersion and install version ${VERSION}"
+						StrCpy $2 "$2Will uninstall version $PerMachineInstallationVersion and install version ${VERSION}"
 					${endif}	
 					${if} $MultiUser.InstallMode == "AllUsers"
-						StrCpy $7 "$7 per-machine"
+						StrCpy $2 "$2 per-machine"
 					${else}	
-						StrCpy $7 "$7 per-user"
+						StrCpy $2 "$2 per-user"
 					${endif}
-					StrCpy $7 "$7."
+					StrCpy $2 "$2."
 				!else
-					StrCpy $7 "Version $PerMachineInstallationVersion is installed per-machine in $PerMachineInstallationFolder$\r$\nWill uninstall."
+					StrCpy $2 "Version $PerMachineInstallationVersion is installed per-machine in $PerMachineInstallationFolder$\r$\nWill uninstall."
 				!endif
 			${else}
-				StrCpy $7 "Fresh install for all users."
+				StrCpy $2 "Fresh install for all users."
 			${endif}
 			${if} $IsAdmin == 0
-				StrCpy $7 "$7 Will prompt for admin credentials."
+				StrCpy $2 "$2 Will prompt for admin credentials."
 			${endif}		
 		${else} ; current user
 			${if} $HasPerUserInstallation == 1
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
-					StrCpy $7 "Version $PerUserInstallationVersion is already installed per-user in $PerUserInstallationFolder$\r$\n"
+					StrCpy $2 "Version $PerUserInstallationVersion is already installed per-user in $PerUserInstallationFolder$\r$\n"
 					${if} $PerUserInstallationVersion == ${VERSION}
-						StrCpy $7 "$7Will reinstall version ${VERSION}"
+						StrCpy $2 "$2Will reinstall version ${VERSION}"
 					${else}
-						StrCpy $7 "$7Will uninstall version $PerUserInstallationVersion and install version ${VERSION}"
+						StrCpy $2 "$2Will uninstall version $PerUserInstallationVersion and install version ${VERSION}"
 					${endif}
 					${if} $MultiUser.InstallMode == "AllUsers"
-						StrCpy $7 "$7 per-machine"
+						StrCpy $2 "$2 per-machine"
 					${else}	
-						StrCpy $7 "$7 per-user"
+						StrCpy $2 "$2 per-user"
 					${endif}
-					StrCpy $7 "$7."
+					StrCpy $2 "$2."
 				!else
-					StrCpy $7 "Version $PerUserInstallationVersion is installed per-user in $PerUserInstallationFolder$\r$\nWill uninstall."
+					StrCpy $2 "Version $PerUserInstallationVersion is installed per-user in $PerUserInstallationFolder$\r$\nWill uninstall."
 				!endif
 			${else}
-				StrCpy $7 "Fresh install for current user only."
+				StrCpy $2 "Fresh install for current user only."
 			${endif}		
 		${endif}
-		SendMessage $MultiUser.InstallModePage.Description ${WM_SETTEXT} 0 "STR:$7"
+		SendMessage $MultiUser.InstallModePage.Description ${WM_SETTEXT} 0 "STR:$2"
+		
+		Pop $2
+		Pop $1
+		Pop $0
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionLabelClick
-		pop $1 ; get clicked control's HWND, which is on the stack in $1
-		nsDialogs::GetUserData $1
-		pop $2
+		Exch $0 ; get clicked control's HWND, which is on the stack in $0
+		nsDialogs::GetUserData $0
+		Pop $0
 
 		${NSD_Uncheck} $MultiUser.InstallModePage.AllUsers 
 		${NSD_Uncheck} $MultiUser.InstallModePage.CurrentUser
-		${NSD_Check} $2 ; ${NSD_Check} will check both radio buttons without the above 2 lines
-		${NSD_SetFocus} $2		
-		Push $2
+		${NSD_Check} $0 ; ${NSD_Check} will check both radio buttons without the above 2 lines
+		${NSD_SetFocus} $0		
+		Push $0
 		; ${NSD_Check} doesn't call Click event
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionClick
+		
+		Pop $0		
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionClick
-		pop $1 ; get clicked control's HWND, which is on the stack in $1
+		Exch $0 ; get clicked control's HWND, which is on the stack in $0
 
 		; set InstallMode
-		${if} $1 == $MultiUser.InstallModePage.AllUsers
+		${if} $0 == $MultiUser.InstallModePage.AllUsers
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers
 		${else}	
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
 		${endif}				
 
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.SetShieldAndTexts
-	FunctionEnd
-	
-	!if "${UNINSTALLER_FUNCPREFIX}" == ""
-		Function MultiUser.BackButtonClick
-			GetDlgItem $0 $HWNDPARENT 1
-			SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD	if displayed			
-		FunctionEnd	
-	!endif
+		
+		Pop $0
+	FunctionEnd	
 !macroend
 
 !macro MULTIUSER_GetCurrentUserString VAR
-	StrCpy $${VAR} ""
+	StrCpy ${VAR} ""
 	!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} != 0
 		${if} $MultiUser.InstallMode == "CurrentUser" 
-			StrCpy $${VAR} " (current user)"
+			StrCpy ${VAR} " (current user)"
 		${endif}
 	!endif				
 !macroend
 
 !macro MULTIUSER_RegistryAddInstallInfo
-	!verbose push
-	!verbose 3	
 	Push "$0"
 
 	; Write the installation path into the registry
@@ -929,7 +973,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	; Workaround for Windows issue: if the uninstall key names are the same in HKLM and HKCU, Windows displays only one entry in the add/remove programs dialog;
 	; this will create 2 different keys in HKCU (MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH and MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH),
 	; but that's OK, both will be removed by uninstaller
-	!insertmacro MULTIUSER_GetCurrentUserString 0
+	!insertmacro MULTIUSER_GetCurrentUserString $0
 	
 	${if} $MultiUser.InstallMode == "AllUsers" ; setting defaults
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME}"
@@ -948,18 +992,15 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoRepair" 1
 
 	Pop $0
-	!verbose pop 
 !macroend
 
 !macro MULTIUSER_RegistryAddInstallSizeInfo
-	!verbose push
-	!verbose 3	
 	Push "$0"
 	Push "$1"
 	Push "$2"
 	Push "$3"
 
-	!insertmacro MULTIUSER_GetCurrentUserString 0
+	!insertmacro MULTIUSER_GetCurrentUserString $0
 
 	${GetSize} "$INSTDIR" "/S=0K" $1 $2 $3 ; get folder size, convert to KB
 	IntFmt $1 "0x%08X" $1
@@ -969,22 +1010,18 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	Pop $2
 	Pop $1
 	Pop $0
-	!verbose pop 	
 !macroend
 
 !macro MULTIUSER_RegistryRemoveInstallInfo
-	!verbose push
-	!verbose 3
 	Push "$0"
 
 	; Remove registry keys
-	!insertmacro MULTIUSER_GetCurrentUserString 0
+	!insertmacro MULTIUSER_GetCurrentUserString $0
 	
 	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0"
 	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}"
  
 	Pop $0
-	!verbose pop 
 !macroend
 
 !verbose pop

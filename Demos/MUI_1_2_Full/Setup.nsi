@@ -197,14 +197,14 @@ SectionEnd
 Section "Dektop Icon" SectionDesktopIcon
 	SectionIn 1 3
 
-	!insertmacro MULTIUSER_GetCurrentUserString 0
+	!insertmacro MULTIUSER_GetCurrentUserString $0
 	CreateShortCut "$DESKTOP\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"	
 SectionEnd
 
 Section /o "Start Menu Icon" SectionStartMenuIcon
 	SectionIn 3
 
-	!insertmacro MULTIUSER_GetCurrentUserString 0
+	!insertmacro MULTIUSER_GetCurrentUserString $0
 	CreateShortCut "$STARTMENU\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 
@@ -253,7 +253,7 @@ Function PageInstallModeChangeMode
 	!insertmacro MUI_STARTMENU_GETFOLDER "" $StartMenuFolder
 	
 	${if} "$StartMenuFolder" == "${MUI_STARTMENUPAGE_DEFAULTFOLDER}"
-		!insertmacro MULTIUSER_GetCurrentUserString 0
+		!insertmacro MULTIUSER_GetCurrentUserString $0
 		StrCpy $StartMenuFolder "$StartMenuFolder$0"
 	${endif}	
 FunctionEnd
