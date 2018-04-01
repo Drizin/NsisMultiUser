@@ -347,11 +347,15 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		StrCpy $CmdLineInstallMode ""
 		StrCpy $CmdLineDir ""
 		
-		!if ${MULTIUSER_INSTALLMODE_64_BIT} == 0
-			SetRegView 32 ; someday, when NSIS is 64-bit...
-		!else
-			SetRegView 64
-		!endif
+		${if} ${RunningX64} ; fix for https://github.com/Drizin/NsisMultiUser/issues/11
+			${if} ${MULTIUSER_INSTALLMODE_64_BIT} == 0
+				; HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall gets redirected to HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall,
+				; for HKCU there's no redirection
+				SetRegView 32 ; someday, when NSIS is 64-bit...
+			${else}
+				SetRegView 64
+			${endif}		
+		${endif}
 										
 		UserInfo::GetAccountType
 		Pop $MultiUser.Privileges
