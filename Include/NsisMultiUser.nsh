@@ -371,25 +371,33 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${else}
 			StrCpy $IsInnerInstance 0
 		${endif}
-			
-		; initialize PerXXXInstallationVersion, PerXXXInstallationFolder, PerXXXUninstallString variables
-		ReadRegStr $PerMachineInstallationVersion HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "DisplayVersion"
+
+		; initialize PerXXXInstallationFolder, PerXXXInstallationVersion, PerXXXUninstallString variables
 		ReadRegStr $PerMachineInstallationFolder HKLM "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" ; "InstallLocation"
+		ReadRegStr $PerMachineInstallationVersion HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "DisplayVersion"		
 		ReadRegStr $PerMachineUninstallString HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "UninstallString" ; contains the /currentuser or /allusers parameter
 		${if} $PerMachineInstallationFolder == ""
 			StrCpy $HasPerMachineInstallation 0
 		${else}
 			StrCpy $HasPerMachineInstallation 1
 		${endif}
-		ReadRegStr $PerUserInstallationVersion HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "DisplayVersion"
+				
 		ReadRegStr $PerUserInstallationFolder HKCU "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" ; "InstallLocation"
-		ReadRegStr $PerUserUninstallString HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "UninstallString" ; contains the /currentuser or /allusers parameter
+		!insertmacro MULTIUSER_GetCurrentUserString $0
+		ReadRegStr $PerUserInstallationVersion HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayVersion"				
+		ReadRegStr $PerUserUninstallString HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "UninstallString" ; contains the /currentuser or /allusers parameter
 		${if} $PerUserInstallationFolder == ""
 			StrCpy $HasPerUserInstallation 0
 		${else}
 			StrCpy $HasPerUserInstallation 1
+			${if} $PerUserInstallationVersion == ""
+				${andif} $0 != ""
+				; support old versions that did not have MULTIUSER_GetCurrentUserString
+				ReadRegStr $PerUserInstallationVersion HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "DisplayVersion"				
+				ReadRegStr $PerUserUninstallString HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "UninstallString" ; contains the /currentuser or /allusers parameter				
+			${endif}	
 		${endif}
-	
+			
 		; get all parameters
 		${GetParameters} $R0
 	
