@@ -1,3 +1,5 @@
+Unicode true ; Properly display all languages (Installer will not work on Windows 95, 98 or ME!)
+
 !addplugindir /x86-ansi ".\..\..\Plugins\x86-ansi"
 !addplugindir /x86-unicode ".\..\..\Plugins\x86-unicode"
 !addincludedir ".\..\..\Include"
@@ -10,6 +12,7 @@
 !include LogicLib.nsh
 !include ".\..\Common\Utils.nsh"
 
+; Installer defines
 !define PRODUCT_NAME "NsisMultiUser MUI_1_2 Full Demo" ; name of the application as displayed to the user
 !define VERSION "1.0" ; main version of the application (may be 0.1, alpha, beta, etc.)
 !define PROGEXE "calc.exe" ; main application filename
@@ -17,6 +20,7 @@
 !define PLATFORM "Win64"
 !define MIN_WIN_VER "XP"
 !define SINGLE_INSTANCE_ID "${COMPANY_NAME} ${PRODUCT_NAME} Unique ID" ; do not change this between program versions!
+!define SETTINGS_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define LICENSE_FILE "License.txt" ; license file, optional
 
 ; NsisMultiUser optional defines
@@ -29,21 +33,29 @@
 !endif
 !define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"	
 
+; Variables
 Var StartMenuFolder
 
-; Installer Attributes
-Name "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"
-OutFile "Setup_MUI_1_2_Full.exe"
-BrandingText "©2017 ${COMPANY_NAME}"
+; Installer Attributes  
+Name "${PRODUCT_NAME} v${VERSION} ${PLATFORM}"
+OutFile "Setup ${PRODUCT_NAME} v${VERSION} ${PLATFORM}.exe"
+BrandingText "©2018 ${COMPANY_NAME}"
 
 AllowSkipFiles off
 SetOverwrite on ; (default setting) set to on except for where it is manually switched off
 ShowInstDetails show 
 SetCompressor /SOLID lzma
 
-; Pages
+; Interface Settings
 !define MUI_ABORTWARNING ; Show a confirmation when cancelling the installation
+!define MUI_LANGDLL_ALLLANGUAGES ; Show all languages, despite user's codepage
 
+; Remember the installer language
+!define MUI_LANGDLL_REGISTRY_ROOT "SHCTX" 
+!define MUI_LANGDLL_REGISTRY_KEY "${SETTINGS_REG_KEY}" 
+!define MUI_LANGDLL_REGISTRY_VALUENAME "Language"
+	
+; Pages
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
 !insertmacro MUI_PAGE_WELCOME
 
@@ -68,7 +80,7 @@ SetCompressor /SOLID lzma
 !define MUI_STARTMENUPAGE_NODISABLE ; Do not display the checkbox to disable the creation of Start Menu shortcuts
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}"
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "SHCTX" ; writing to $StartMenuFolder happens in MUI_STARTMENU_WRITE_END, so it's safe to use "SHCTX" here
-!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "${SETTINGS_REG_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageStartMenuPre
 !insertmacro MUI_PAGE_STARTMENU "" "$StartMenuFolder"
@@ -81,10 +93,17 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_FINISH
 
 ; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
-!include Uninstall.nsh
+!include UninstallPages.nsh
 
-!insertmacro MUI_LANGUAGE "English" ; Set languages (first is default language) - must be inserted after all pages 
+; Languages (first is default language) - must be inserted after all pages 
+!insertmacro MUI_LANGUAGE "English" 
+!insertmacro MUI_LANGUAGE "Bulgarian"
+!insertmacro MULTIUSER_LANGUAGE_INIT
 
+; Reserve files
+!insertmacro MUI_RESERVEFILE_LANGDLL
+
+; Sections
 InstType "Typical" 
 InstType "Minimal" 
 InstType "Full" 
@@ -240,7 +259,11 @@ Function .onInit
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
 	${endif}	
 
-	!insertmacro MULTIUSER_INIT		
+	!insertmacro MULTIUSER_INIT	
+
+	${ifnot} ${UAC_IsInnerInstance}
+		!insertmacro MUI_LANGDLL_DISPLAY
+	${endif}
 FunctionEnd
 
 Function PageWelcomeLicensePre		
@@ -301,3 +324,5 @@ Function .onInstFailed
 	MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully installed.$\r$\nPlease, restart Windows and run the setup program again." /SD IDOK
 FunctionEnd
 
+; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
+!include Uninstall.nsh

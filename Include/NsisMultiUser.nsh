@@ -4,7 +4,7 @@ NsisMultiUser.nsh - NSIS plugin that allows "per-user" (no admin required) and "
 
 Full source code, documentation and demos at https://github.com/Drizin/NsisMultiUser/
 
-Copyright 2016-2017 Ricardo Drizin, Alex Mitev
+Copyright 2016-2018 Ricardo Drizin, Alex Mitev
 
 */
 
@@ -14,9 +14,11 @@ Copyright 2016-2017 Ricardo Drizin, Alex Mitev
 ; Standard NSIS header files
 !include nsDialogs.nsh
 !include LogicLib.nsh
+!include x64.nsh
 !include WinVer.nsh
 !include FileFunc.nsh
 !include UAC.nsh
+!include StrRep.nsh
 
 RequestExecutionLevel user ; will ask elevation only if necessary
 
@@ -152,6 +154,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 !macroend
 
 /****** Installer/uninstaller initialization ******/
+!macro MULTIUSER_LANGUAGE_INIT ; called by user script after the last MUI_LANGUAGE call
+	!include "NsisMultiUserLang.nsh"
+!macroend
+
 !macro MULTIUSER_INIT ; called by user script in .onInit (after MULTIUSER_PAGE_INSTALLMODE)
 	!ifdef MULTIUSER_INIT
 		!error "MULTIUSER_INIT already inserted!"
@@ -176,6 +182,17 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!endif	
 	
 	Call un.MultiUser.InitChecks
+!macroend
+
+!macro MULTIUSER_SET_ERROR ERROR ; only use in MultiUser.InitChecks!
+	SetErrorLevel ${ERROR}
+	${if} ${silent}
+		Quit
+	${else}
+		StrCpy $InstallShowPagesBeforeComponents 0
+		System::Store L
+		Return
+	${endif}
 !macroend
 
 /****** Functions ******/
@@ -251,15 +268,6 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!endif
 	FunctionEnd
 
-	!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
-		!if "${UNINSTALLER_FUNCPREFIX}" == ""
-			Function MultiUser.GetInstallMode 
-				; called by the inner instance via the UAC plugin to get InstallMode selected by user in outer instance 
-				; (UAC doesn't support passing custom parameters to the inner instance)
-				StrCpy $0 $MultiUser.InstallMode
-			FunctionEnd	
-		!endif
-	!endif
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.GetPos
 		StrCpy $2 $PreFunctionCalled ; if not PreFunctionCalled, we cannot get position
 		
@@ -304,16 +312,14 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${else}
 			StrCpy $0 "${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION}"
 		${endif}
-		
-		${if} $0 == 0
-			MessageBox MB_ICONSTOP "You need to run this program as administrator."	/SD IDOK
-			SetErrorLevel ${MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED}
-			Quit
-		${endif}	
 	FunctionEnd	
 	
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.Elevate
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckElevationAllowed
+		
+		${if} $0 == 0
+		    Return
+		${endif}
 		
 		HideWindow
 		!insertmacro UAC_RunElevated
@@ -332,11 +338,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${endif}
 		Quit 
 	FunctionEnd		
-		
-	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InitChecks		
-		Push "$R0"
-		Push "$R1"
-		Push "$0"
+	
+	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InitChecks
+		System::Store S 
 		
 		; Installer initialization - check privileges and set default install mode	
 		StrCpy $MultiUser.InstallMode ""
@@ -411,9 +415,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${GetOptions} $R0 "/currentuser" $R1
 		${ifnot} ${errors}
 			${if} $CmdLineInstallMode != ""
-				MessageBox MB_ICONSTOP "Provide only one of the /allusers or /currentuser parameters." /SD IDOK
-				SetErrorLevel ${MULTIUSER_ERROR_INVALID_PARAMETERS}
-				Quit			
+				!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_INVALID_PARAMETERS}
 			${endif}
 			StrCpy $CmdLineInstallMode "CurrentUser"
 		${endif}		
@@ -443,19 +445,20 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${if} $IsAdmin == 0
 				SetErrorLevel ${MULTIUSER_ERROR_ELEVATION_FAILED} ; special return value for outer instance so it knows we did not have admin rights
 				Quit
-			${endif}		
-		
-			!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
-				!if "${UNINSTALLER_FUNCPREFIX}" == ""
-					!insertmacro UAC_AsUser_Call Function MultiUser.GetInstallMode ${UAC_SYNCREGISTERS}
+			${endif}	
+			
+			!if "${UNINSTALLER_FUNCPREFIX}" == ""
+				; set language to the one used in the outer instance
+				!insertmacro UAC_AsUser_GetGlobalVar $LANGUAGE
+			
+				!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0				
+					!insertmacro UAC_AsUser_GetGlobal $0 $MultiUser.InstallMode
 					${if} $0 == "CurrentUser"
 						; the inner instance was elevated because there is installation per-machine, which needs to be removed and requires admin rights, 
 						; but the user selected per-user installation in the outer instance, set context to CurrentUser
 						Call MultiUser.InstallMode.CurrentUser
 						StrCpy $DisplayDialog 0
-						Pop $0
-						Pop $R1
-						Pop $R0						
+						System::Store L 
 						Return
 					${endif}	
 				!endif
@@ -463,10 +466,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers ; Inner Process (and Admin) - set to AllUsers
 			StrCpy $DisplayDialog 0
-			Pop $0
-			Pop $R1
-			Pop $R0									
-			Return
+			System::Store L
+ 			Return
 		${endif}	
 		
 		; process /? parameter		
@@ -500,25 +501,17 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${GetOptions} $R0 "/uninstall" $R1
 			${ifnot} ${errors}			
 				${if} $CmdLineInstallMode == ""
-					MessageBox MB_ICONSTOP "Provide one of the /allusers or /currentuser parameters." /SD IDOK
-					SetErrorLevel ${MULTIUSER_ERROR_INVALID_PARAMETERS}
-					Quit						
-				${endif}
-				
-				${if} $CmdLineInstallMode == "AllUsers"
+					!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_INVALID_PARAMETERS}
+				${elseif} $CmdLineInstallMode == "AllUsers"
 					${if} $HasPerMachineInstallation == 0
-						MessageBox MB_ICONSTOP "There is no per-machine installation of ${PRODUCT_NAME}." /SD IDOK	
-						SetErrorLevel ${MULTIUSER_ERROR_INVALID_PARAMETERS}
-						Quit
+						!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_NOT_INSTALLED}
 					${endif}
 					StrCpy $0 "$PerMachineInstallationFolder"
 				${else}
 					${if} $HasPerUserInstallation == 0
-						MessageBox MB_ICONSTOP "There is no per-user installation of ${PRODUCT_NAME}." /SD IDOK	
-						SetErrorLevel ${MULTIUSER_ERROR_INVALID_PARAMETERS}
-						Quit
-					${endif}				
-					StrCpy $0 "$PerUserInstallationFolder"			
+						!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_NOT_INSTALLED}
+					${endif}
+					StrCpy $0 "$PerUserInstallationFolder"
 				${endif}
 				
 				; NOTES: 
@@ -567,9 +560,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		
 		!if "${UNINSTALLER_FUNCPREFIX}" != ""
 			${if} $HasPerMachineInstallation$HasPerUserInstallation == "00"
-				MessageBox MB_ICONSTOP "There is no installation of ${PRODUCT_NAME}." /SD IDOK	
-				SetErrorLevel ${MULTIUSER_ERROR_NOT_INSTALLED}
-				Quit
+				!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_NOT_INSTALLED}
 			${endif}
 		!endif
 									
@@ -577,23 +568,19 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${if} $CmdLineInstallMode != ""	
 			${ifnot} ${IsNT} ; Not running Windows NT, (so it's Windows 95/98/ME), so per-user installation not supported					
 				${andif} $CmdLineInstallMode == "CurrentUser"
-				MessageBox MB_ICONSTOP "The OS doesn't support per-user installations." /SD IDOK
-				SetErrorLevel ${MULTIUSER_ERROR_INVALID_PARAMETERS}
-				Quit
+				!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_INVALID_PARAMETERS}
 			${endif}			
-		
+
 			${if} $CmdLineInstallMode == "AllUsers"
 				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers
-			${else}	
-				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
-			${endif}				
-			
+			${else}
+			    Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
+			${endif}
+
 			!if "${UNINSTALLER_FUNCPREFIX}" != ""
 				${if} $HasCurrentModeInstallation == 0
-					MessageBox MB_ICONSTOP "There is no $CmdLineInstallMode installation of ${PRODUCT_NAME}." /SD IDOK
-					SetErrorLevel ${MULTIUSER_ERROR_INVALID_PARAMETERS}
-					Quit
-				${endif}			
+					!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_NOT_INSTALLED}
+				${endif}
 			!endif	
 
 			!if "${UNINSTALLER_FUNCPREFIX}" != ""
@@ -610,11 +597,12 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.Elevate
 				${else}	
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckElevationAllowed ; if we are displaying the dialog and elevation is required, check if elevation is allowed
-				${endif}									
+				${endif}
+				${if} $0 == 0
+					!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED}
+				${endif}
 			${endif}				
-			Pop $0
-			Pop $R1
-			Pop $R0												
+			System::Store L 
 			Return
 		${endif}		
 				
@@ -622,9 +610,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${ifnot} ${IsNT} ; Not running Windows NT, (so it's Windows 95/98/ME), so per-user installation not supported
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers	
 			StrCpy $DisplayDialog 0
-			Pop $0
-			Pop $R1
-			Pop $R0												
+			System::Store L 
 			Return
 		${endif}	
 		
@@ -633,6 +619,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
 			${if} $0 == 1
 				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckElevationAllowed
+				${if} $0 == 0
+					!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED}
+				${endif}
 			${endif}	
 		!endif	
 
@@ -655,6 +644,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			!else
 				${if} $IsAdmin == 0 
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.Elevate ; if $PerMachineOptionAvailable = 0 (i.e. MULTIUSER_INSTALLMODE_ALLOW_ELEVATION = 0), Elevate will call CheckElevationAllowed, which checks if MULTIUSER_INSTALLMODE_ALLOW_ELEVATION = 0 
+					${if} $0 == 0
+						!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED}
+					${endif}
 				${endif}
 				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers
 				StrCpy $DisplayDialog 0							
@@ -684,15 +676,37 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${endif}
 		${endif}		
 		
-		Pop $0
-		Pop $R1
-		Pop $R0											
+		System::Store L 
 	FunctionEnd
-	
-	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModePre
-		Push "$0"
-		Push "$1"
+
+	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.ShowErrorMessage
+ 		Push $0
+ 		
+		GetErrorLevel $0
 		
+		${if} $0 == -1
+		    Pop $0
+		    Return
+		${endif}
+		
+		${Switch} $0
+			${Case} ${MULTIUSER_ERROR_INVALID_PARAMETERS}
+				MessageBox MB_ICONSTOP "$(MULTIUSER_INVALID_PARAMS)" /SD IDOK
+				Quit
+			${Case} ${MULTIUSER_ERROR_NOT_INSTALLED}
+				MessageBox MB_ICONSTOP "$(MULTIUSER_NOT_INSTALLED)" /SD IDOK
+				Quit
+			${Case} ${MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED}
+				MessageBox MB_ICONSTOP "$(MULTIUSER_RUN_AS_ADMIN)" /SD IDOK
+				Quit
+		${EndSwitch}
+	FunctionEnd
+			
+	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModePre
+		System::Store S 
+		
+		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.ShowErrorMessage
+						
 		${if} $IsInnerInstance == 1
 			${if} $PreFunctionCalled == 0 ; inner instance is displayed
 				; set position of inner instance
@@ -711,15 +725,16 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${endif}				
 		StrCpy $PreFunctionCalled 1
 		
-		${if} $DisplayDialog == 0			
+		${if} $DisplayDialog == 0	
+			System::Store L 
 			Abort
 		${endif}		
 						
 		!ifmacrodef MUI_HEADER_TEXT
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""
-				!insertmacro MUI_HEADER_TEXT "Choose Installation Options" "Who should this application be installed for?"
+				!insertmacro MUI_HEADER_TEXT "$(MULTIUSER_PAGE_TITLE)" "$(MULTIUSER_INSTALL_PAGE_SUBTITLE)"
 			!else
-				!insertmacro MUI_HEADER_TEXT "Choose Uninstallation Options" "Which installation should be removed?"
+				!insertmacro MUI_HEADER_TEXT "$(MULTIUSER_PAGE_TITLE)" "$(MULTIUSER_UNINSTALL_PAGE_SUBTITLE)"
 			!endif
 		!endif
 		
@@ -732,25 +747,25 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 		; default was MULTIUSER_TEXT_INSTALLMODE_TITLE "Choose Users"
 		!if "${UNINSTALLER_FUNCPREFIX}" == ""
-			${NSD_CreateLabel} 0 0 100% 24u "Please, select whether you wish to make this software available to all users or just yourself."
+			${NSD_CreateLabel} 0 0 100% 24u "$(MULTIUSER_INSTALL_HEADER)"
 		!else
-			${NSD_CreateLabel} 0 0 100% 24u "This software is installed both per-machine (all users) and per-user. $\r$\nWhich installation you wish to remove?"
+			${NSD_CreateLabel} 0 0 100% 24u "$(MULTIUSER_UNINSTALL_HEADER)"
 		!endif
 		Pop $MultiUser.InstallModePage.Text
 
-		StrCpy $0 "Anyone who uses this computer (all users)" 
+		StrCpy $0 "$(MULTIUSER_ALL_USERS)" 
 		${NSD_CreateRadioButton} 30u 30% 10u 8u ""	
 		Pop $MultiUser.InstallModePage.AllUsers	
 		
-		System::Call "advapi32::GetUserName(t.r1,*i${NSIS_MAX_STRLEN})i"		
-		StrCpy $1 "Only for me ($1)"	
+		System::Call "advapi32::GetUserName(t. r1, *i ${NSIS_MAX_STRLEN})"
+		${StrRep} "$1" "$(MULTIUSER_CURRENT_USER)" "{USER}" "$1" 
 		${NSD_CreateRadioButton} 30u 45% 10u 8u ""	
 		Pop $MultiUser.InstallModePage.CurrentUser 
 		
 		; We create the radio buttons with empty text and create separate labels, because radio button font color can't be changed with XP Styles turned on,
 		; which creates problems with UMUI themes, see http://forums.winamp.com/showthread.php?p=3079742#post3079742
 		; shortcuts (&) for labels don't work and cause strange behaviour in NSIS - going to another page, etc.
-		${NSD_CreateLabel} 44u 30% 280u 8u "$0"
+		${NSD_CreateLabel} 44u 30% 280u 16u "$0"
 		Pop $MultiUser.InstallModePage.AllUsersLabel
 		nsDialogs::SetUserData $MultiUser.InstallModePage.AllUsersLabel $MultiUser.InstallModePage.AllUsers						
 		${NSD_CreateLabel} 44u 45% 280u 8u "$1"
@@ -758,7 +773,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		nsDialogs::SetUserData $MultiUser.InstallModePage.CurrentUserLabel $MultiUser.InstallModePage.CurrentUser		
 
 		${if} $PerMachineOptionAvailable == 0 ; install per-machine is not available
-			SendMessage $MultiUser.InstallModePage.AllUsersLabel ${WM_SETTEXT} 0 "STR:$0 (must run as admin)" ; only when $PerMachineOptionAvailable == 0, we add that comment to the disabled control itself
+			SendMessage $MultiUser.InstallModePage.AllUsersLabel ${WM_SETTEXT} 0 "STR:$0$\r$\n($(MULTIUSER_RUN_AS_ADMIN))" ; only when $PerMachineOptionAvailable == 0, we add that comment to the disabled control itself
 			${orif} $CmdLineInstallMode != ""			
 			EnableWindow $MultiUser.InstallModePage.AllUsersLabel 0 ; start out disabled
 			EnableWindow $MultiUser.InstallModePage.AllUsers 0 ; start out disabled			
@@ -799,8 +814,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			!endif	
 		!endif	
 
-		Pop $1
-		Pop $0
+		System::Store L 
 		
 		!ifdef MUI_PAGE_CUSTOMFUNCTION_SHOW
 			Call "${MUI_PAGE_CUSTOMFUNCTION_SHOW}"
@@ -810,7 +824,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		nsDialogs::Show		
 		
 		!if "${UNINSTALLER_FUNCPREFIX}" == ""
-			Push "$0"
+			Push $0
 			GetDlgItem $0 $HWNDPARENT 1
 			SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD	on page leave (InstallModeLeave is called only on Next button click)
 			Pop $0
@@ -818,10 +832,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeLeave
-		Push "$0"
-		Push "$1"
-		Push "$2"
-		Push "$3"
+		System::Store S 
 		
 		!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION} == 1 ; if elevation is allowed		
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
@@ -838,7 +849,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 							${Case} 1	; Started an elevated child process successfully, exit code is in $2
 								${Switch} $2
 									${Case} ${MULTIUSER_ERROR_ELEVATION_FAILED} ; the inner instance was not admin after all - stay on page
-										MessageBox MB_ICONSTOP "You need to login with an account that is a member of the admin group to continue." /SD IDOK
+										MessageBox MB_ICONSTOP "$(MULTIUSER_ADMIN_ACCOUNT_LOGIN_REQUIRED)" /SD IDOK
 										${Break}
 									${Case} ${MULTIUSER_INNER_INSTANCE_BACK} ; if user pressed Back button on the first visible page of the inner instance - stay on page
 										${Break}
@@ -848,19 +859,20 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 								${EndSwitch}
 								${Break}
 							${Case} 3 ; RunAs completed successfully, but with a non-admin user - stay on page
-								MessageBox MB_ICONSTOP "You need to login with an account that is a member of the admin group to continue." /SD IDOK
+								MessageBox MB_ICONSTOP "$(MULTIUSER_ADMIN_ACCOUNT_LOGIN_REQUIRED)" /SD IDOK
 								${Break}						
 							${Default} ; 0 - UAC is not supported by the OS, OR 2 - The process is already running @ HighIL (Member of admin group) - stay on page
-								MessageBox MB_ICONSTOP "Elevation is not supported by your operating system." /SD IDOK
+								MessageBox MB_ICONSTOP "$(MULTIUSER_ELEVATION_NOT_SUPPORTED)" /SD IDOK
 						${EndSwitch}				
 						${Break}												
 					${Case} 1223 ; user aborted elevation dialog - stay on page
 						${Break} 
 					${Case} 1062 ; Logon service not running - stay on page
-						MessageBox MB_ICONSTOP "Unable to elevate, Secondary Logon service not running" /SD IDOK
+						MessageBox MB_ICONSTOP "$(MULTIUSER_LOGON_SERVICE_NOT_RUNNING)" /SD IDOK
 						${Break}
 					${Default} ; anything else should be treated as a fatal error - stay on page
-						MessageBox MB_ICONSTOP "Unable to elevate, error $0" /SD IDOK
+						${StrRep} "$0" "$(MULTIUSER_ELEVATION_ERROR)" "{ERROR}" "$0" 
+						MessageBox MB_ICONSTOP "$0" /SD IDOK
 				${EndSwitch}				
 
 				; clear the error level set by UAC for inner instance, so that outer instance returns its own error level when exits (the error level is not reset by NSIS if once set and >= 0)
@@ -871,10 +883,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${endif}
 		!endif
 
-		Pop $3
-		Pop $2
-		Pop $1
-		Pop $0
+		System::Store L
 
 		!ifdef MUI_PAGE_CUSTOMFUNCTION_LEAVE
 			Call "${MUI_PAGE_CUSTOMFUNCTION_LEAVE}"
@@ -883,9 +892,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.SetShieldAndTexts
-		Push "$0"
-		Push "$1"
-		Push "$2"
+		System::Store S
 		
 		GetDlgItem $1 $hwndParent 1 ; get item 1 (next button) at parent window, store in $1 - (0 is back, 1 is next .. what about CANCEL? http://nsis.sourceforge.net/Buttons_Header )
 
@@ -893,7 +900,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		SendMessage $1 ${BCM_SETSHIELD} 0 $0 ; display/hide SHIELD (Windows Vista and above)
 				
 		StrCpy $0 "$MultiUser.InstallMode"
-		; if necessary, display text for different install mode than the actual one in $MultiUser.InstallMode
+		; if necessary, display text for different install mode rather than the actual one in $MultiUser.InstallMode
 		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""			
 				${if} $MultiUser.InstallMode == "AllUsers" ; user selected "all users" 
@@ -907,58 +914,67 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!endif				
 			
 		; set label text
-		StrCpy $2 ""
+		StrCpy $1 ""
 		${if} $0 == "AllUsers" ; all users
 			${if} $HasPerMachineInstallation == 1
+				${StrRep} "$1" "$(MULTIUSER_INSTALLED_ALL_USERS)" "{VERSION}" "$PerMachineInstallationVersion" 
+				${StrRep} "$1" "$1" "{FOLDER}" "$PerMachineInstallationFolder" 
+
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
-					StrCpy $2 "Version $PerMachineInstallationVersion is already installed per-machine in $PerMachineInstallationFolder$\r$\n"
 					${if} $PerMachineInstallationVersion == ${VERSION}
-						StrCpy $2 "$2Will reinstall version ${VERSION}"
+						${if} $MultiUser.InstallMode == "AllUsers"
+							${StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_ALL_USERS)" "{VERSION}" "$PerMachineInstallationVersion"
+						${else}	
+							${StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_CURRENT_USER)" "{VERSION}" "$PerMachineInstallationVersion" 
+						${endif}					
 					${else}
-						StrCpy $2 "$2Will uninstall version $PerMachineInstallationVersion and install version ${VERSION}"
+						${if} $MultiUser.InstallMode == "AllUsers"
+							${StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_ALL_USERS)" "{OLD_VERSION}" "$PerMachineInstallationVersion"
+							${StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
+						${else}	
+							${StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER)" "{OLD_VERSION}" "$PerMachineInstallationVersion"
+							${StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
+						${endif}
 					${endif}	
-					${if} $MultiUser.InstallMode == "AllUsers"
-						StrCpy $2 "$2 per-machine"
-					${else}	
-						StrCpy $2 "$2 per-user"
-					${endif}
-					StrCpy $2 "$2."
-				!else
-					StrCpy $2 "Version $PerMachineInstallationVersion is installed per-machine in $PerMachineInstallationFolder$\r$\nWill uninstall."
+					StrCpy $1 "$1$\r$\n$2"
 				!endif
 			${else}
-				StrCpy $2 "Fresh install for all users."
+				StrCpy $1 "$(MULTIUSER_NEW_INSTALLATION_ALL_USERS)"
 			${endif}
 			${if} $IsAdmin == 0
-				StrCpy $2 "$2 Will prompt for admin credentials."
+				StrCpy $1 "$1 $(MULTIUSER_ADMIN_CREDENTIALS_REQUIRED)"
 			${endif}		
 		${else} ; current user
 			${if} $HasPerUserInstallation == 1
+				${StrRep} "$1" "$(MULTIUSER_INSTALLED_CURRENT_USER)" "{VERSION}" "$PerUserInstallationVersion" 
+				${StrRep} "$1" "$1" "{FOLDER}" "$PerUserInstallationFolder" 			
+			
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
-					StrCpy $2 "Version $PerUserInstallationVersion is already installed per-user in $PerUserInstallationFolder$\r$\n"
 					${if} $PerUserInstallationVersion == ${VERSION}
-						StrCpy $2 "$2Will reinstall version ${VERSION}"
+						${if} $MultiUser.InstallMode == "AllUsers"
+							${StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_ALL_USERS)" "{VERSION}" "$PerUserInstallationVersion"
+						${else}	
+							${StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_CURRENT_USER)" "{VERSION}" "$PerUserInstallationVersion" 
+						${endif}					
 					${else}
-						StrCpy $2 "$2Will uninstall version $PerUserInstallationVersion and install version ${VERSION}"
+						${if} $MultiUser.InstallMode == "AllUsers"
+							${StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_ALL_USERS)" "{OLD_VERSION}" "$PerUserInstallationVersion"
+							${StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
+						${else}	
+							${StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER)" "{OLD_VERSION}" "$PerUserInstallationVersion"
+							${StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
+						${endif}
 					${endif}
-					${if} $MultiUser.InstallMode == "AllUsers"
-						StrCpy $2 "$2 per-machine"
-					${else}	
-						StrCpy $2 "$2 per-user"
-					${endif}
-					StrCpy $2 "$2."
-				!else
-					StrCpy $2 "Version $PerUserInstallationVersion is installed per-user in $PerUserInstallationFolder$\r$\nWill uninstall."
+					StrCpy $1 "$1$\r$\n$2"
 				!endif
 			${else}
-				StrCpy $2 "Fresh install for current user only."
+				StrCpy $1 "$(MULTIUSER_NEW_INSTALLATION_CURRENT_USER)"
 			${endif}		
 		${endif}
-		SendMessage $MultiUser.InstallModePage.Description ${WM_SETTEXT} 0 "STR:$2"
 		
-		Pop $2
-		Pop $1
-		Pop $0
+		SendMessage $MultiUser.InstallModePage.Description ${WM_SETTEXT} 0 "STR:$1"
+		
+		System::Store L
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionLabelClick
@@ -997,13 +1013,14 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	StrCpy ${VAR} ""
 	!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} != 0
 		${if} $MultiUser.InstallMode == "CurrentUser" 
+			${orif} $MultiUser.InstallMode == "" ; called from InitChecks
 			StrCpy ${VAR} " (current user)"
 		${endif}
 	!endif				
 !macroend
 
 !macro MULTIUSER_RegistryAddInstallInfo
-	Push "$0"
+	Push $0
 
 	; Write the installation path into the registry
 	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" "$INSTDIR" ; "InstallLocation"
@@ -1015,8 +1032,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	!insertmacro MULTIUSER_GetCurrentUserString $0
 	
 	${if} $MultiUser.InstallMode == "AllUsers" ; setting defaults
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME}"
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /allusers' 
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME}"
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /allusers' 
 	${else}
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME} (current user)" ; "add/remove programs" will show if installation is per-user
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /currentuser' 
@@ -1034,10 +1051,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 !macroend
 
 !macro MULTIUSER_RegistryAddInstallSizeInfo
-	Push "$0"
-	Push "$1"
-	Push "$2"
-	Push "$3"
+	Push $0
+	Push $1
+	Push $2
+	Push $3
 
 	!insertmacro MULTIUSER_GetCurrentUserString $0
 
@@ -1052,12 +1069,14 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 !macroend
 
 !macro MULTIUSER_RegistryRemoveInstallInfo
-	Push "$0"
+	Push $0
 
 	; Remove registry keys
+	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}"
 	!insertmacro MULTIUSER_GetCurrentUserString $0
-	
-	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0"
+	${if} "$0" != ""	
+		DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0"
+	${endif}	
 	DeleteRegKey SHCTX "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}"
  
 	Pop $0
