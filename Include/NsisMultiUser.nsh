@@ -260,6 +260,23 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			FunctionEnd	
 		!endif
 	!endif
+	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.GetPos
+		StrCpy $2 $PreFunctionCalled ; if not PreFunctionCalled, we cannot get position
+		
+		${if} $2 == 1		
+			System::Call "*(i, i, i, i) p .r3" ;  allocate RECT struct
+			
+			System::Call "User32::GetWindowRect(p $HWNDPARENT, i r3)"
+			
+			System::Call '*$3(i .r0, i .r1, i, i)'
+			
+			System::Free $3
+		${endif}	
+	FunctionEnd
+	
+	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.SetPos
+		System::Call "User32::SetWindowPos(p $HWNDPARENT, i 0, i $0, i $1, i 0, i 0, i 0x5)"
+	FunctionEnd	
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
 		; check if elevation on page is always required, return result in $0
@@ -665,10 +682,20 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		Push "$1"
 		
 		${if} $IsInnerInstance == 1
-			${andif} $PreFunctionCalled == 1
-			; user pressed Back button on the first visible page in the inner instance - display outer instance
-			SetErrorLevel ${MULTIUSER_INNER_INSTANCE_BACK}
-			Quit							
+			${if} $PreFunctionCalled == 0 ; inner instance is displayed
+				; set position of inner instance
+				!insertmacro UAC_AsUser_Call Function ${UNINSTALLER_FUNCPREFIX}MultiUser.GetPos ${UAC_SYNCREGISTERS}
+				${if} $2 == 1
+					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.SetPos			
+				${endif}	
+			${else} ; user pressed Back button on the first visible page in the inner instance - display outer instance
+				; set position of outer instance
+				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.GetPos							
+				!insertmacro UAC_AsUser_Call Function ${UNINSTALLER_FUNCPREFIX}MultiUser.SetPos ${UAC_SYNCREGISTERS}				
+							
+				SetErrorLevel ${MULTIUSER_INNER_INSTANCE_BACK}
+				Quit	
+			${endif}
 		${endif}				
 		StrCpy $PreFunctionCalled 1
 		
