@@ -18,7 +18,7 @@ Copyright 2016-2018 Ricardo Drizin, Alex Mitev
 !include WinVer.nsh
 !include FileFunc.nsh
 !include UAC.nsh
-!include StrRep.nsh
+!include StrFunc.nsh
 
 RequestExecutionLevel user ; will ask elevation only if necessary
 
@@ -124,13 +124,15 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!error "You cannot insert MULTIUSER_${UNINSTALLER_PREFIX}PAGE_INSTALLMODE more than once!"
 	!endif
 	!define MULTIUSER_${UNINSTALLER_PREFIX}PAGE_INSTALLMODE
+
+	${${UNINSTALLER_PREFIX}StrRep}
+
+	!insertmacro MULTIUSER_${UNINSTALLER_PREFIX}INIT_VARS
 	
 	!ifmacrodef MUI_${UNINSTALLER_PREFIX}PAGE_INIT
 		!insertmacro MUI_${UNINSTALLER_PREFIX}PAGE_INIT
 	!endif	
 	
-	!insertmacro MULTIUSER_${UNINSTALLER_PREFIX}INIT_VARS	
-		
 	!insertmacro MULTIUSER_FUNCTION_INSTALLMODEPAGE "${UNINSTALLER_PREFIX}" "${UNINSTALLER_FUNCPREFIX}"
 
 	PageEx ${UNINSTALLER_FUNCPREFIX}custom
@@ -272,7 +274,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		StrCpy $2 $PreFunctionCalled ; if not PreFunctionCalled, we cannot get position
 		
 		${if} $2 == 1		
-			System::Call "*(i, i, i, i) p .r3" ;  allocate RECT struct
+			System::Call "*(i, i, i, i) p .r3" ; allocate RECT struct
 			
 			System::Call "User32::GetWindowRect(p $HWNDPARENT, i r3)"
 			
@@ -318,7 +320,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckElevationAllowed
 		
 		${if} $0 == 0
-		    Return
+			Return
 		${endif}
 		
 		HideWindow
@@ -574,7 +576,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${if} $CmdLineInstallMode == "AllUsers"
 				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers
 			${else}
-			    Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
+				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
 			${endif}
 
 			!if "${UNINSTALLER_FUNCPREFIX}" != ""
@@ -685,8 +687,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		GetErrorLevel $0
 		
 		${if} $0 == -1
-		    Pop $0
-		    Return
+			Pop $0
+			Return
 		${endif}
 		
 		${Switch} $0
@@ -758,7 +760,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		Pop $MultiUser.InstallModePage.AllUsers	
 		
 		System::Call "advapi32::GetUserName(t. r1, *i ${NSIS_MAX_STRLEN})"
-		${StrRep} "$1" "$(MULTIUSER_CURRENT_USER)" "{USER}" "$1" 
+		${${UNINSTALLER_PREFIX}StrRep} "$1" "$(MULTIUSER_CURRENT_USER)" "{USER}" "$1"
 		${NSD_CreateRadioButton} 30u 45% 10u 8u ""	
 		Pop $MultiUser.InstallModePage.CurrentUser 
 		
@@ -871,7 +873,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 						MessageBox MB_ICONSTOP "$(MULTIUSER_LOGON_SERVICE_NOT_RUNNING)" /SD IDOK
 						${Break}
 					${Default} ; anything else should be treated as a fatal error - stay on page
-						${StrRep} "$0" "$(MULTIUSER_ELEVATION_ERROR)" "{ERROR}" "$0" 
+						${${UNINSTALLER_PREFIX}StrRep} "$0" "$(MULTIUSER_ELEVATION_ERROR)" "{ERROR}" "$0"
 						MessageBox MB_ICONSTOP "$0" /SD IDOK
 				${EndSwitch}				
 
@@ -917,23 +919,23 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		StrCpy $1 ""
 		${if} $0 == "AllUsers" ; all users
 			${if} $HasPerMachineInstallation == 1
-				${StrRep} "$1" "$(MULTIUSER_INSTALLED_ALL_USERS)" "{VERSION}" "$PerMachineInstallationVersion" 
-				${StrRep} "$1" "$1" "{FOLDER}" "$PerMachineInstallationFolder" 
+				${${UNINSTALLER_PREFIX}StrRep} "$1" "$(MULTIUSER_INSTALLED_ALL_USERS)" "{VERSION}" "$PerMachineInstallationVersion"
+				${${UNINSTALLER_PREFIX}StrRep} "$1" "$1" "{FOLDER}" "$PerMachineInstallationFolder"
 
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
 					${if} $PerMachineInstallationVersion == ${VERSION}
 						${if} $MultiUser.InstallMode == "AllUsers"
-							${StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_ALL_USERS)" "{VERSION}" "$PerMachineInstallationVersion"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_ALL_USERS)" "{VERSION}" "$PerMachineInstallationVersion"
 						${else}	
-							${StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_CURRENT_USER)" "{VERSION}" "$PerMachineInstallationVersion" 
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_CURRENT_USER)" "{VERSION}" "$PerMachineInstallationVersion"
 						${endif}					
 					${else}
 						${if} $MultiUser.InstallMode == "AllUsers"
-							${StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_ALL_USERS)" "{OLD_VERSION}" "$PerMachineInstallationVersion"
-							${StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_ALL_USERS)" "{OLD_VERSION}" "$PerMachineInstallationVersion"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
 						${else}	
-							${StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER)" "{OLD_VERSION}" "$PerMachineInstallationVersion"
-							${StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER)" "{OLD_VERSION}" "$PerMachineInstallationVersion"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
 						${endif}
 					${endif}	
 					StrCpy $1 "$1$\r$\n$2"
@@ -946,23 +948,23 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${endif}		
 		${else} ; current user
 			${if} $HasPerUserInstallation == 1
-				${StrRep} "$1" "$(MULTIUSER_INSTALLED_CURRENT_USER)" "{VERSION}" "$PerUserInstallationVersion" 
-				${StrRep} "$1" "$1" "{FOLDER}" "$PerUserInstallationFolder" 			
+				${${UNINSTALLER_PREFIX}StrRep} "$1" "$(MULTIUSER_INSTALLED_CURRENT_USER)" "{VERSION}" "$PerUserInstallationVersion"
+				${${UNINSTALLER_PREFIX}StrRep} "$1" "$1" "{FOLDER}" "$PerUserInstallationFolder"
 			
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
 					${if} $PerUserInstallationVersion == ${VERSION}
 						${if} $MultiUser.InstallMode == "AllUsers"
-							${StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_ALL_USERS)" "{VERSION}" "$PerUserInstallationVersion"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_ALL_USERS)" "{VERSION}" "$PerUserInstallationVersion"
 						${else}	
-							${StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_CURRENT_USER)" "{VERSION}" "$PerUserInstallationVersion" 
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_CURRENT_USER)" "{VERSION}" "$PerUserInstallationVersion"
 						${endif}					
 					${else}
 						${if} $MultiUser.InstallMode == "AllUsers"
-							${StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_ALL_USERS)" "{OLD_VERSION}" "$PerUserInstallationVersion"
-							${StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_ALL_USERS)" "{OLD_VERSION}" "$PerUserInstallationVersion"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
 						${else}	
-							${StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER)" "{OLD_VERSION}" "$PerUserInstallationVersion"
-							${StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER)" "{OLD_VERSION}" "$PerUserInstallationVersion"
+							${${UNINSTALLER_PREFIX}StrRep} "$2" "$2" "{VERSION}" "${VERSION}"
 						${endif}
 					${endif}
 					StrCpy $1 "$1$\r$\n$2"

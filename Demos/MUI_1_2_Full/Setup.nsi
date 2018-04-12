@@ -1,5 +1,3 @@
-Unicode true ; Properly display all languages (Installer will not work on Windows 95, 98 or ME!)
-
 !addplugindir /x86-ansi ".\..\..\Plugins\x86-ansi"
 !addplugindir /x86-unicode ".\..\..\Plugins\x86-unicode"
 !addincludedir ".\..\..\Include"
@@ -44,6 +42,7 @@ BrandingText "©2018 ${COMPANY_NAME}"
 AllowSkipFiles off
 SetOverwrite on ; (default setting) set to on except for where it is manually switched off
 ShowInstDetails show 
+Unicode true ; properly display all languages (Installer will not work on Windows 95, 98 or ME!)
 SetCompressor /SOLID lzma
 
 ; Interface Settings
