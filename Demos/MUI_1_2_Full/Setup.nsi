@@ -164,8 +164,8 @@ Section "Core Files (required)" SectionCoreFiles
 			${EndSwitch}				
 		${endif}		
 			
-		Delete "$2\${UNINSTALL_FILENAME}"	; the uninstaller doesn't delete itself when not copied to the temp directory
-		RMDir "$2"		
+		Delete "$3\${UNINSTALL_FILENAME}"	; the uninstaller doesn't delete itself when not copied to the temp directory
+		RMDir "$3"		
 	${endif}	
 		
 	SetOutPath $INSTDIR
