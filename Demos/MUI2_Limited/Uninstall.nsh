@@ -59,13 +59,13 @@ Function un.onInit
 	${endif}
 	
 	${ifnot} ${UAC_IsInnerInstance}
-		${andif} $RunningFromInstaller == "0"
+		${andif} $RunningFromInstaller == 0
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
 	${endif}		
 		
 	!insertmacro MULTIUSER_UNINIT		
 	
-	!insertmacro MUI_UNGETLANGUAGE
+	!insertmacro MUI_UNGETLANGUAGE ; we always get the language, since the outer and inner instance might have different language
 FunctionEnd
 
 Function un.PageInstallModeChangeMode

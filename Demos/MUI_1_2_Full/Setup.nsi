@@ -36,7 +36,7 @@ Var StartMenuFolder
 
 ; Installer Attributes  
 Name "${PRODUCT_NAME} v${VERSION} ${PLATFORM}"
-OutFile "Setup ${PRODUCT_NAME} v${VERSION} ${PLATFORM}.exe"
+OutFile "${PRODUCT_NAME} v${VERSION} ${PLATFORM}.exe"
 BrandingText "©2018 ${COMPANY_NAME}"
 
 AllowSkipFiles off
@@ -50,7 +50,7 @@ SetCompressor /SOLID lzma
 !define MUI_LANGDLL_ALLLANGUAGES ; Show all languages, despite user's codepage
 
 ; Remember the installer language
-!define MUI_LANGDLL_REGISTRY_ROOT "SHCTX" 
+!define MUI_LANGDLL_REGISTRY_ROOT SHCTX 
 !define MUI_LANGDLL_REGISTRY_KEY "${SETTINGS_REG_KEY}" 
 !define MUI_LANGDLL_REGISTRY_VALUENAME "Language"
 	
@@ -78,7 +78,7 @@ SetCompressor /SOLID lzma
 
 !define MUI_STARTMENUPAGE_NODISABLE ; Do not display the checkbox to disable the creation of Start Menu shortcuts
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}"
-!define MUI_STARTMENUPAGE_REGISTRY_ROOT "SHCTX" ; writing to $StartMenuFolder happens in MUI_STARTMENU_WRITE_END, so it's safe to use "SHCTX" here
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT SHCTX ; writing to $StartMenuFolder happens in MUI_STARTMENU_WRITE_END, so it's safe to use SHCTX here
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "${SETTINGS_REG_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageStartMenuPre
@@ -186,12 +186,10 @@ Section "Documentation" SectionDocumentation
 	SectionIn 1 3
 	
 	SetOutPath $INSTDIR	
-	File "readme.txt" 
-	
+	File "readme.txt"
 SectionEnd
 
 SectionGroup /e "Integration" SectionGroupIntegration
-
 Section "Program Group" SectionProgramGroup
 	SectionIn 1	3
 	
@@ -260,15 +258,15 @@ Function .onInit
 
 	!insertmacro MULTIUSER_INIT	
 
-	${ifnot} ${UAC_IsInnerInstance}
+	${if} $IsInnerInstance == 0
 		!insertmacro MUI_LANGDLL_DISPLAY
 	${endif}
 FunctionEnd
 
 Function PageWelcomeLicensePre		
 	${if} $InstallShowPagesBeforeComponents == 0
-		Abort ; don't display the Welcome and License pages for the inner instance 
-	${endif}	
+		Abort ; don't display the Welcome and License pages
+	${endif}
 FunctionEnd
 
 Function PageInstallModeChangeMode

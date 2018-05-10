@@ -448,11 +448,12 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				SetErrorLevel ${MULTIUSER_ERROR_ELEVATION_FAILED} ; special return value for outer instance so it knows we did not have admin rights
 				Quit
 			${endif}	
-			
+
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""
-				; set language to the one used in the outer instance
+				; set language to the one used in the outer instance (installer only, for uninstaller the outer and inner instance might have different language,
+				; or there might be no current user installation when the outer uninstaller invokes the inner instance
 				!insertmacro UAC_AsUser_GetGlobalVar $LANGUAGE
-			
+
 				!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0				
 					!insertmacro UAC_AsUser_GetGlobal $0 $MultiUser.InstallMode
 					${if} $0 == "CurrentUser"
@@ -476,23 +477,27 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!ifndef MULTIUSER_INSTALLMODE_NO_HELP_DIALOG ; define MULTIUSER_INSTALLMODE_NO_HELP_DIALOG to display your own help dialog (new options, return codes, etc.)
 			${GetOptions} $R0 "/?" $R1
 			${ifnot} ${errors}
-				MessageBox MB_ICONINFORMATION "Usage:$\r$\n$\r$\n\
-					 /allusers$\t- (un)install for all users, case-insensitive$\r$\n\			
-					/currentuser - (un)install for current user only, case-insensitive$\r$\n\			
+				MessageBox MB_ICONINFORMATION "Usage:$\r$\n\
+					$\r$\n\
+					/allusers$\t- (un)install for all users, case-insensitive$\r$\n\
+					/currentuser - (un)install for current user only, case-insensitive$\r$\n\
 					/uninstall$\t- (installer only) run uninstaller, requires /allusers or /currentuser, case-insensitive$\r$\n\
-									/S$\t- silent mode, requires /allusers or /currentuser, case-sensitive$\r$\n\
-									/D$\t- (installer only) set install directory, must be last parameter, without quotes, case-sensitive$\r$\n\
-									/?$\t- display this message$\r$\n$\r$\n$\r$\n\
-				Return codes (decimal):$\r$\n$\r$\n\
-						 0$\t- normal execution (no error)$\r$\n\
-						 1$\t- (un)installation aborted by user (Cancel button)$\r$\n\
-						 2$\t- (un)installation aborted by script$\r$\n\
-				666660$\t- invalid command-line parameters$\r$\n\
-				666661$\t- elevation is not allowed by defines$\r$\n\
-				666662$\t- uninstaller detected there's no installed version$\r$\n\
-				666663$\t- executing uninstaller from the installer failed$\r$\n\
-				666666$\t- cannot start elevated instance$\r$\n\
-				 other$\t- Windows error code when trying to start elevated instance"
+					/S$\t- silent mode, requires /allusers or /currentuser, case-sensitive$\r$\n\
+					/D$\t- (installer only) set install directory, must be last parameter, without quotes, case-sensitive$\r$\n\
+					/?$\t- display this message$\r$\n\
+					$\r$\n\
+					$\r$\n\
+					Return codes (decimal):$\r$\n\
+					$\r$\n\
+					0$\t- normal execution (no error)$\r$\n\
+					1$\t- (un)installation aborted by user (Cancel button)$\r$\n\
+					2$\t- (un)installation aborted by script$\r$\n\
+					666660$\t- invalid command-line parameters$\r$\n\
+					666661$\t- elevation is not allowed by defines$\r$\n\
+					666662$\t- uninstaller detected there's no installed version$\r$\n\
+					666663$\t- executing uninstaller from the installer failed$\r$\n\
+					666666$\t- cannot start elevated instance$\r$\n\
+					other$\t- Windows error code when trying to start elevated instance"
 				SetErrorLevel 0
 				Quit
 			${endif}		

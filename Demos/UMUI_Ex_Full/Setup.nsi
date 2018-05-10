@@ -10,6 +10,7 @@
 !include LogicLib.nsh
 !include ".\..\Common\Utils.nsh"
 
+; Installer defines
 !define PRODUCT_NAME "NsisMultiUser UMUI Full Demo" ; name of the application as displayed to the user
 !define VERSION "1.0" ; main version of the application (may be 0.1, alpha, beta, etc.)
 !define PROGEXE "calc.exe" ; main application filename
@@ -17,6 +18,7 @@
 !define PLATFORM "Win64"
 !define MIN_WIN_VER "XP"
 !define SINGLE_INSTANCE_ID "${COMPANY_NAME} ${PRODUCT_NAME} Unique ID" ; do not change this between program versions!
+!define SETTINGS_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define LICENSE_FILE "License.txt" ; license file, optional
 
 ; NsisMultiUser optional defines
@@ -29,29 +31,43 @@
 !endif
 !define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"	
 
+; Variables
 Var StartMenuFolder
 
 ; Installer Attributes
-Name "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"
-OutFile "Setup_UMUI_Full.exe"
-BrandingText "©2017 ${COMPANY_NAME}"
+Name "${PRODUCT_NAME} v${VERSION} ${PLATFORM}"
+OutFile "${PRODUCT_NAME} v${VERSION} ${PLATFORM}.exe"
+BrandingText "©2018 ${COMPANY_NAME}"
 
 AllowSkipFiles off
 SetOverwrite on ; (default setting) set to on except for where it is manually switched off
 ShowInstDetails show 
+Unicode true ; properly display all languages (Installer will not work on Windows 95, 98 or ME!)
 SetCompressor /SOLID lzma
 
-; Pages
+; Interface Settings
+!define MUI_ABORTWARNING ; Show a confirmation when cancelling the installation
+!define MUI_LANGDLL_ALLLANGUAGES ; Show all languages, despite user's codepage
+
+; Remember the installer language
+!define UMUI_LANGUAGE_REGISTRY_ROOT SHCTX
+!define UMUI_LANGUAGE_REGISTRY_KEY "${SETTINGS_REG_KEY}"
+!define UMUI_LANGUAGE_REGISTRY_VALUENAME "Language"
+
 ; You have 2 options here:
 ; 1. Set "UMUI_XPSTYLE on" to display the Shield on Next button, which causes non-skinnable radio buttons, group boxes and check boxes (see http://forums.winamp.com/showthread.php?t=399899),
 ; which requires the use of a light theme
 ; 2. Remove the "UMUI_XPSTYLE on", use the standard (dark) theme and live without the Next button Shield
-!define UMUI_SKIN SoftBlue
+!ifndef USE_MUIEx
+	!define UMUI_SKIN SoftBlue
+!endif
 !define UMUI_NOBOTTOMIMAGE
 !define UMUI_NO_BUTTONIMAGE
 !define UMUI_XPSTYLE on
 
-!define MUI_ABORTWARNING ; Show a confirmation when cancelling the installation
+; Pages
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageMulgiLanguagePre
+!insertmacro UMUI_PAGE_MULTILANGUAGE
 
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
 !insertmacro MUI_PAGE_WELCOME
@@ -77,8 +93,8 @@ SetCompressor /SOLID lzma
 
 !define MUI_STARTMENUPAGE_NODISABLE ; Do not display the checkbox to disable the creation of Start Menu shortcuts
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}"
-!define MUI_STARTMENUPAGE_REGISTRY_ROOT "SHCTX" ; writing to $StartMenuFolder happens in MUI_STARTMENU_WRITE_END, so it's safe to use "SHCTX" here
-!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT SHCTX ; writing to $StartMenuFolder happens in MUI_STARTMENU_WRITE_END, so it's safe to use SHCTX here
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "${SETTINGS_REG_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageStartMenuPre
 !insertmacro MUI_PAGE_STARTMENU "" "$StartMenuFolder"
@@ -91,10 +107,14 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_FINISH
 
 ; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
-!include Uninstall.nsh
+!include UninstallPages.nsh
 
-!insertmacro MUI_LANGUAGE "English" ; Set languages (first is default language) - must be inserted after all pages 
+; Languages (first is default language) - must be inserted after all pages 
+!insertmacro MUI_LANGUAGE "English" 
+!insertmacro MUI_LANGUAGE "Bulgarian"
+!insertmacro MULTIUSER_LANGUAGE_INIT
 
+; Sections
 InstType "Typical" 
 InstType "Minimal" 
 InstType "Full" 
@@ -186,11 +206,9 @@ Section "Documentation" SectionDocumentation
 	
 	SetOutPath $INSTDIR	
 	File "readme.txt" 
-	
 SectionEnd
 
 SectionGroup /e "Integration" SectionGroupIntegration
-
 Section "Program Group" SectionProgramGroup
 	SectionIn 1	3
 	
@@ -258,11 +276,21 @@ Function .onInit
 	${endif}	
 
 	!insertmacro MULTIUSER_INIT		
+
+	!insertmacro UMUI_MULTILANG_GET 
+FunctionEnd
+
+Function PageMulgiLanguagePre
+	${if} $IsInnerInstance == 1
+	    ; fix for https://github.com/SuperPat45/UltraModernUI/issues/3
+		!insertmacro UMUI_ADDPARAMTOSAVETOREGISTRYKEY ${UMUI_LANGUAGE_REGISTRY_ROOT} "${UMUI_LANGUAGE_REGISTRY_KEY}" "${UMUI_LANGUAGE_REGISTRY_VALUENAME}" "$LANGUAGE"
+		Abort ; don't display the Language page for the inner instance
+	${endif}
 FunctionEnd
 
 Function PageWelcomeLicensePre		
 	${if} $InstallShowPagesBeforeComponents == 0
-		Abort ; don't display the Welcome and License pages for the inner instance 
+		Abort ; don't display the Welcome and License pages
 	${endif}	
 FunctionEnd
 
@@ -325,3 +353,5 @@ Function .onInstFailed
 	MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully installed.$\r$\nPlease, restart Windows and run the setup program again." /SD IDOK
 FunctionEnd
 
+; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
+!include Uninstall.nsh

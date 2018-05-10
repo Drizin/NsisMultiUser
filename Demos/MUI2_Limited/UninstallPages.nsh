@@ -5,9 +5,10 @@ Var RunningFromInstaller ; installer started uninstaller using /uninstall parame
 ; Installer Attributes
 ShowUninstDetails show
 
-; Pages
+; Interface settings
 !define MUI_UNABORTWARNING ; Show a confirmation when cancelling the installation
 
+; Pages
 !define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION un.PageInstallModeChangeMode
 !insertmacro MULTIUSER_UNPAGE_INSTALLMODE
 
