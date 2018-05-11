@@ -6,39 +6,39 @@ Section "un.Program Files" SectionUninstallProgram
 	!ifdef LICENSE_FILE
 		!insertmacro un.DeleteRetryAbort "$INSTDIR\${LICENSE_FILE}"
 	!endif
-	
+
 	; Clean up "Documentation"
 	!insertmacro un.DeleteRetryAbort "$INSTDIR\readme.txt"
-	
+
 	; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
 	${if} "$StartMenuFolder" != ""
 		RMDir /r "$SMPROGRAMS\$StartMenuFolder"
-	${endif}	
-	
+	${endif}
+
 	; Clean up "Dektop Icon"
 	!insertmacro MULTIUSER_GetCurrentUserString $0
 	!insertmacro un.DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
-	
+
 	; Clean up "Start Menu Icon"
 	!insertmacro MULTIUSER_GetCurrentUserString $0
 	!insertmacro un.DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
-		
+
 	; Clean up "Quick Launch Icon"
-	!insertmacro un.DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"	
+	!insertmacro un.DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"
 SectionEnd
 
 Section /o "un.Program Settings" SectionRemoveSettings
 	; this section is executed only explicitly and shouldn't be placed in SectionUninstallProgram
-	DeleteRegKey HKCU "Software\${PRODUCT_NAME}"			
+	DeleteRegKey HKCU "Software\${PRODUCT_NAME}"
 SectionEnd
 
 Section "-Uninstall" ; hidden section, must always be the last one!
+	!insertmacro un.DeleteRetryAbort "$INSTDIR\${UNINSTALL_FILENAME}"
+	; remove the directory only if it is empty - the user might have saved some files in it
+	RMDir "$INSTDIR"
+	
 	; Remove the uninstaller from registry as the very last step - if sth. goes wrong, let the user run it again
-	!insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys
-		
-	Delete "$INSTDIR\${UNINSTALL_FILENAME}"	
-	; remove the directory only if it is empty - the user might have saved some files in it		
-	RMDir "$INSTDIR"			
+	!insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys	
 SectionEnd
 
 ; Modern install component descriptions
@@ -50,21 +50,21 @@ SectionEnd
 ; Callbacks
 Function un.onInit
 	${GetParameters} $R0
-		
+
 	${GetOptions} $R0 "/uninstall" $R1
-	${ifnot} ${errors}	
-		StrCpy $RunningFromInstaller 1		
+	${ifnot} ${errors}
+		StrCpy $RunningFromInstaller 1
 	${else}
 		StrCpy $RunningFromInstaller 0
 	${endif}
-	
+
 	${ifnot} ${UAC_IsInnerInstance}
 		${andif} $RunningFromInstaller == 0
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
-	${endif}		
-		
-	!insertmacro MULTIUSER_UNINIT		
-	
+	${endif}
+
+	!insertmacro MULTIUSER_UNINIT
+
 	!insertmacro MUI_UNGETLANGUAGE ; we always get the language, since the outer and inner instance might have different language
 FunctionEnd
 
@@ -73,11 +73,11 @@ Function un.PageInstallModeChangeMode
 FunctionEnd
 
 Function un.PageComponentsShow
-	; Show/hide the Back button 
-	GetDlgItem $0 $HWNDPARENT 3 
+	; Show/hide the Back button
+	GetDlgItem $0 $HWNDPARENT 3
 	ShowWindow $0 $UninstallShowBackButton
 FunctionEnd
 
 Function un.onUninstFailed
-	MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully uninstalled.$\r$\nPlease, restart Windows and run the uninstaller again." /SD IDOK	
+	MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully uninstalled.$\r$\nPlease, restart Windows and run the uninstaller again." /SD IDOK
 FunctionEnd
