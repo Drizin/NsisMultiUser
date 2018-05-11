@@ -31,8 +31,8 @@
 	
 	System::Call 'kernel32::CreateMutex(i 0, i 0, t "Global\${SINGLE_INSTANCE_ID}") i .r0 ?e'	
 	Pop $1 ; the stack contains the result of GetLastError
-	${if} $1 == "${ERROR_ALREADY_EXISTS}"
-		${orif} $1 == "${ERROR_ACCESS_DENIED}"	; ERROR_ACCESS_DENIED means the mutex was created by another user and we don't have access to open it, so application is running
+	${if} $1 = "${ERROR_ALREADY_EXISTS}"
+		${orif} $1 = "${ERROR_ACCESS_DENIED}"	; ERROR_ACCESS_DENIED means the mutex was created by another user and we don't have access to open it, so application is running
 		System::Call 'kernel32::CloseHandle(i $0)' ; if the user closes the already running instance, allow to start a new one without closing the MessageBox
 
 		; will display NSIS taskbar button, no way to hide it before GUIInit, $HWNDPARENT is 0
