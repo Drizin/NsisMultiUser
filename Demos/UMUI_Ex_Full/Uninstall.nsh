@@ -90,7 +90,7 @@ Function un.PageInstallModeChangeMode
 FunctionEnd
 
 Function un.PageComponentsPre
-	${if} $SemiSilentMode == 1
+	${if} $SemiSilentMode = 1
 		Abort ; if user is installing, no use to remove program settings anyway (should be compatible with all versions)
 	${endif}
 FunctionEnd
@@ -102,7 +102,7 @@ Function un.PageComponentsShow
 FunctionEnd
 
 Function un.onUninstFailed
-	${if} $SemiSilentMode == 0
+	${if} $SemiSilentMode = 0
 		MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully uninstalled.$\r$\nPlease, restart Windows and run the uninstaller again." /SD IDOK
 	${else}
 		MessageBox MB_ICONSTOP "${PRODUCT_NAME} could not be fully installed.$\r$\nPlease, restart Windows and run the setup program again." /SD IDOK

@@ -110,7 +110,7 @@ InstType "Full"
 Section "Core Files (required)" SectionCoreFiles
 	SectionIn 1 2 3 RO
 
-	${if} $HasCurrentModeInstallation == 1 ; if there's an installed version, remove all optinal components (except "Core Files")
+	${if} $HasCurrentModeInstallation = 1 ; if there's an installed version, remove all optinal components (except "Core Files")
 		; Clean up "Documentation"
 		!insertmacro DeleteRetryAbort "$INSTDIR\readme.txt"
 
@@ -232,13 +232,13 @@ Function .onInit
 
 	!insertmacro MULTIUSER_INIT
 
-	${if} $IsInnerInstance == 1
+	${if} $IsInnerInstance = 1
 		!insertmacro MUI_LANGDLL_DISPLAY
 	${endif}
 FunctionEnd
 
 Function PageWelcomeLicensePre
-	${if} $InstallShowPagesBeforeComponents == 0
+	${if} $InstallShowPagesBeforeComponents = 0
 		Abort ; don't display the Welcome and License pages
 	${endif}
 FunctionEnd
@@ -263,7 +263,7 @@ FunctionEnd
 
 Function PageDirectoryShow
 	${if} $CmdLineDir != ""
-		${orif} $HasCurrentModeInstallation == 1
+		${orif} $HasCurrentModeInstallation = 1
 		FindWindow $R1 "#32770" "" $HWNDPARENT
 
 		GetDlgItem $0 $R1 1019 ; Directory edit

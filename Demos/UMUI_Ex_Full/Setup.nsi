@@ -134,13 +134,13 @@ Section "Core Files (required)" SectionCoreFiles
 	; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
 	; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
 	StrCpy $0 ""
-	${if} $HasCurrentModeInstallation == 1
+	${if} $HasCurrentModeInstallation = 1
 		StrCpy $0 "$MultiUser.InstallMode"
 	${else}
-		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
-			${if} $HasPerMachineInstallation == 1
+		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
+			${if} $HasPerMachineInstallation = 1
 				StrCpy $0 "AllUsers" ; if there's no per-user installation, but there's per-machine installation, uninstall it
-			${elseif} $HasPerUserInstallation == 1
+			${elseif} $HasPerUserInstallation = 1
 				StrCpy $0 "CurrentUser" ; if there's no per-machine installation, but there's per-user installation, uninstall it
 			${endif}
 		!endif
@@ -283,7 +283,7 @@ Function .onInit
 FunctionEnd
 
 Function PageMulgiLanguagePre
-	${if} $IsInnerInstance == 1
+	${if} $IsInnerInstance = 1
 		; fix for https://github.com/SuperPat45/UltraModernUI/issues/3
 		!insertmacro UMUI_ADDPARAMTOSAVETOREGISTRYKEY ${UMUI_LANGUAGE_REGISTRY_ROOT} "${UMUI_LANGUAGE_REGISTRY_KEY}" "${UMUI_LANGUAGE_REGISTRY_VALUENAME}" "$LANGUAGE"
 		Abort ; don't display the Language page for the inner instance
@@ -291,7 +291,7 @@ Function PageMulgiLanguagePre
 FunctionEnd
 
 Function PageWelcomeLicensePre
-	${if} $InstallShowPagesBeforeComponents == 0
+	${if} $InstallShowPagesBeforeComponents = 0
 		Abort ; don't display the Welcome and License pages
 	${endif}
 FunctionEnd

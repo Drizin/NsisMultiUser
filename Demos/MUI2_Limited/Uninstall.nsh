@@ -59,7 +59,7 @@ Function un.onInit
 	${endif}
 
 	${ifnot} ${UAC_IsInnerInstance}
-		${andif} $RunningFromInstaller == 0
+		${andif} $RunningFromInstaller = 0
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
 	${endif}
 

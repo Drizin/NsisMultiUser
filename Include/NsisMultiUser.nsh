@@ -45,8 +45,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!define /redef MULTIUSER_INSTALLMODE_ALLOW_ELEVATION 1
 	!endif	
 	!define /ifndef MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT 0 ; 0 or 1, (only available if MULTIUSER_INSTALLMODE_ALLOW_ELEVATION = 1) allow UAC screens in the (un)installer in silent mode; if set to 0 and user is not admin and elevation is always required, (un)installer will exit with an error code	
-	!if "${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION}" == 0
-		!if "${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT}" == 1
+	!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION} = 0
+		!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT} = 1
 			!error "MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT can be set only when MULTIUSER_INSTALLMODE_ALLOW_ELEVATION is set!"
 		!endif
 	!endif	
@@ -217,7 +217,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${else}			
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""
 				; Set default installation location for installer
-				${if} ${MULTIUSER_INSTALLMODE_64_BIT} == 0
+				${if} ${MULTIUSER_INSTALLMODE_64_BIT} = 0
 					StrCpy $INSTDIR "$PROGRAMFILES32\${MULTIUSER_INSTALLMODE_INSTDIR}"
 				${else}
 					StrCpy $INSTDIR "$PROGRAMFILES64\${MULTIUSER_INSTALLMODE_INSTDIR}"
@@ -273,7 +273,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.GetPos
 		StrCpy $2 $PreFunctionCalled ; if not PreFunctionCalled, we cannot get position
 		
-		${if} $2 == 1		
+		${if} $2 = 1
 			System::Call "*(i, i, i, i) p .r3" ; allocate RECT struct
 			
 			System::Call "User32::GetWindowRect(p $HWNDPARENT, i r3)"
@@ -293,12 +293,12 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		; when this function is called from InitChecks, InstallMode is ""
 		; and when called from InstallModeLeave/SetShieldsAndTexts, InstallMode is not empty 
 		StrCpy $0 0
-		${if} $IsAdmin == 0 
+		${if} $IsAdmin = 0
 			${if} $MultiUser.InstallMode == "AllUsers"
 				StrCpy $0 1
 			${else} 
 				!if "${UNINSTALLER_FUNCPREFIX}" == "" ; installer
-					!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
+					!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
 						${if} $HasPerMachineInstallation$HasPerUserInstallation == "10"
 							StrCpy $0 1 ; has to uninstall the per-machine istalattion, which requires admin rights
 						${endif}			
@@ -319,21 +319,21 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.Elevate
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckElevationAllowed
 		
-		${if} $0 == 0
+		${if} $0 = 0
 			Return
 		${endif}
 		
 		HideWindow
 		!insertmacro UAC_RunElevated
-		${if} $0 == 0
-			; if inner instance was started ($1 == 1), return code of the elevated fork process is in $2 as well as set via SetErrorLevel
+		${if} $0 = 0
+			; if inner instance was started ($1 = 1), return code of the elevated fork process is in $2 as well as set via SetErrorLevel
 			; NOTE: the error level may have a value MULTIUSER_ERROR_ELEVATION_FAILED (but not MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED)		
-			${if} $1 != 1 ; process did not start - return MULTIUSER_ERROR_ELEVATION_FAILED
+			${if} $1 <> 1 ; process did not start - return MULTIUSER_ERROR_ELEVATION_FAILED
 				SetErrorLevel ${MULTIUSER_ERROR_ELEVATION_FAILED}
 			${endif}
 		${else} ; process did not start - return MULTIUSER_ERROR_ELEVATION_FAILED or Win32 error code stored in $0
-			${if} $0 == 1223 ; user aborted elevation dialog - translate to MULTIUSER_ERROR_ELEVATION_FAILED for easier processing
-				${orif} $0 == 1062 ; Logon service not running - translate to MULTIUSER_ERROR_ELEVATION_FAILED for easier processing
+			${if} $0 = 1223 ; user aborted elevation dialog - translate to MULTIUSER_ERROR_ELEVATION_FAILED for easier processing
+				${orif} $0 = 1062 ; Logon service not running - translate to MULTIUSER_ERROR_ELEVATION_FAILED for easier processing
 				StrCpy $0 ${MULTIUSER_ERROR_ELEVATION_FAILED}
 			${endif}	
 			SetErrorLevel $0
@@ -354,7 +354,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		StrCpy $CmdLineDir ""
 		
 		${if} ${RunningX64} ; fix for https://github.com/Drizin/NsisMultiUser/issues/11
-			${if} ${MULTIUSER_INSTALLMODE_64_BIT} == 0
+			${if} ${MULTIUSER_INSTALLMODE_64_BIT} = 0
 				; HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall gets redirected to HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall,
 				; for HKCU there's no redirection
 				SetRegView 32 ; someday, when NSIS is 64-bit...
@@ -430,7 +430,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	
 		; initialize $InstallShowPagesBeforeComponents and $UninstallShowBackButton
 		!if "${UNINSTALLER_FUNCPREFIX}" == ""			
-			${if} $IsInnerInstance == 1
+			${if} $IsInnerInstance = 1
 				StrCpy $InstallShowPagesBeforeComponents 0 ; we hide pages only if we're the inner instance (the outer instance always shows them)
 			${endif}	
 		!else				
@@ -442,9 +442,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${endif}			
 		!endif			
 
-		${if} $IsInnerInstance == 1
+		${if} $IsInnerInstance = 1
 			; check if the inner instance has admin rights
-			${if} $IsAdmin == 0
+			${if} $IsAdmin = 0
 				SetErrorLevel ${MULTIUSER_ERROR_ELEVATION_FAILED} ; special return value for outer instance so it knows we did not have admin rights
 				Quit
 			${endif}	
@@ -454,7 +454,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				; or there might be no current user installation when the outer uninstaller invokes the inner instance
 				!insertmacro UAC_AsUser_GetGlobalVar $LANGUAGE
 
-				!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0				
+				!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
 					!insertmacro UAC_AsUser_GetGlobal $0 $MultiUser.InstallMode
 					${if} $0 == "CurrentUser"
 						; the inner instance was elevated because there is installation per-machine, which needs to be removed and requires admin rights, 
@@ -510,12 +510,12 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				${if} $CmdLineInstallMode == ""
 					!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_INVALID_PARAMETERS}
 				${elseif} $CmdLineInstallMode == "AllUsers"
-					${if} $HasPerMachineInstallation == 0
+					${if} $HasPerMachineInstallation = 0
 						!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_NOT_INSTALLED}
 					${endif}
 					StrCpy $0 "$PerMachineInstallationFolder"
 				${else}
-					${if} $HasPerUserInstallation == 0
+					${if} $HasPerUserInstallation = 0
 						!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_NOT_INSTALLED}
 					${endif}
 					StrCpy $0 "$PerUserInstallationFolder"
@@ -529,7 +529,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				
 				System::Call 'shell32::ShellExecuteEx(i r2) i .r0 ?e'
 				Pop $1
-				${if} $0 == 0
+				${if} $0 = 0
 					SetErrorLevel $1
 					Quit
 				${endif}
@@ -538,14 +538,14 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				
 				System::Call 'kernel32::WaitForSingleObject(i r3, i -1) i .r0 ?e' ; wait indefinitely for the process to exit
 				Pop $1
-				${if} $0 != 0 ; WAIT_OBJECT_0
+				${if} $0 <> 0 ; WAIT_OBJECT_0
 					SetErrorLevel $1
 					Quit
 				${endif}
 				
 				System::Call 'kernel32::GetExitCodeProcess(i r3, *i .r4) i .r0 ?e' ; store exit code in $4
 				Pop $1
-				${if} $0 == 0
+				${if} $0 = 0
 					SetErrorLevel $1
 					Quit
 				${endif}
@@ -585,7 +585,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${endif}
 
 			!if "${UNINSTALLER_FUNCPREFIX}" != ""
-				${if} $HasCurrentModeInstallation == 0
+				${if} $HasCurrentModeInstallation = 0
 					!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_NOT_INSTALLED}
 				${endif}
 			!endif	
@@ -599,13 +599,13 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			!endif	
 
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
-			${if} $0 == 1
-				${if} $DisplayDialog == 0 ; if we are not displaying the dialog (uninstaller or silent mode) and elevation is required, Elevate now (or Quit with an error)
+			${if} $0 = 1
+				${if} $DisplayDialog = 0 ; if we are not displaying the dialog (uninstaller or silent mode) and elevation is required, Elevate now (or Quit with an error)
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.Elevate
 				${else}	
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckElevationAllowed ; if we are displaying the dialog and elevation is required, check if elevation is allowed
 				${endif}
-				${if} $0 == 0
+				${if} $0 = 0
 					!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED}
 				${endif}
 			${endif}				
@@ -624,17 +624,17 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		; check if elevation on page is always required (installer only)
 		!if "${UNINSTALLER_FUNCPREFIX}" == ""
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
-			${if} $0 == 1
+			${if} $0 = 1
 				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckElevationAllowed
-				${if} $0 == 0
+				${if} $0 = 0
 					!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED}
 				${endif}
 			${endif}	
 		!endif	
 
 		; if elevation is not allowed and user is not admin, disable the per-machine option
-		!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION} == 0
-			${if} $IsAdmin == 0
+		!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION} = 0
+			${if} $IsAdmin = 0
 				StrCpy $PerMachineOptionAvailable 0				
 			${endif}	
 		!endif
@@ -643,15 +643,15 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		; when uninstaller is invoked from the "add/remove programs", Windows will automatically start uninstaller elevated if uninstall keys are in HKLM
 		${if} $HasPerMachineInstallation$HasPerUserInstallation == "10"				
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""
-				${if} $PerMachineOptionAvailable == 1
+				${if} $PerMachineOptionAvailable = 1
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers
 				${else}
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
 				${endif}				
 			!else
-				${if} $IsAdmin == 0 
+				${if} $IsAdmin = 0
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.Elevate ; if $PerMachineOptionAvailable = 0 (i.e. MULTIUSER_INSTALLMODE_ALLOW_ELEVATION = 0), Elevate will call CheckElevationAllowed, which checks if MULTIUSER_INSTALLMODE_ALLOW_ELEVATION = 0 
-					${if} $0 == 0
+					${if} $0 = 0
 						!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED}
 					${endif}
 				${endif}
@@ -664,17 +664,17 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				StrCpy $DisplayDialog 0				
 			!endif							
 		${else} ; if there is no installed version (installer only), or there are 2 installations - we always display the dialog 
-			${if} $IsAdmin == 1 ; If running as admin, default to per-machine installation (unless default is forced by MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER)
-				!if ${MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER} == 0
+			${if} $IsAdmin = 1 ; If running as admin, default to per-machine installation (unless default is forced by MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER)
+				!if ${MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER} = 0
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers					
 				!else
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
 				!endif
 			${else} ; if not running as admin, default to per-user installation (unless default is forced by MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS)
-				!if ${MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS} == 0
+				!if ${MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS} = 0
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
 				!else
-					${if} $PerMachineOptionAvailable == 1
+					${if} $PerMachineOptionAvailable = 1
 						Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers 				
 					${else}
 						Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
@@ -691,7 +691,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
  		
 		GetErrorLevel $0
 		
-		${if} $0 == -1
+		${if} $0 = -1
 			Pop $0
 			Return
 		${endif}
@@ -714,11 +714,11 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.ShowErrorMessage
 						
-		${if} $IsInnerInstance == 1
-			${if} $PreFunctionCalled == 0 ; inner instance is displayed
+		${if} $IsInnerInstance = 1
+			${if} $PreFunctionCalled = 0 ; inner instance is displayed
 				; set position of inner instance
 				!insertmacro UAC_AsUser_Call Function ${UNINSTALLER_FUNCPREFIX}MultiUser.GetPos ${UAC_SYNCREGISTERS}
-				${if} $2 == 1
+				${if} $2 = 1
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.SetPos			
 				${endif}	
 			${else} ; user pressed Back button on the first visible page in the inner instance - display outer instance
@@ -732,7 +732,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${endif}				
 		StrCpy $PreFunctionCalled 1
 		
-		${if} $DisplayDialog == 0	
+		${if} $DisplayDialog = 0
 			System::Store L 
 			Abort
 		${endif}		
@@ -779,8 +779,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		Pop $MultiUser.InstallModePage.CurrentUserLabel
 		nsDialogs::SetUserData $MultiUser.InstallModePage.CurrentUserLabel $MultiUser.InstallModePage.CurrentUser		
 
-		${if} $PerMachineOptionAvailable == 0 ; install per-machine is not available
-			SendMessage $MultiUser.InstallModePage.AllUsersLabel ${WM_SETTEXT} 0 "STR:$0$\r$\n($(MULTIUSER_RUN_AS_ADMIN))" ; only when $PerMachineOptionAvailable == 0, we add that comment to the disabled control itself
+		${if} $PerMachineOptionAvailable = 0 ; install per-machine is not available
+			SendMessage $MultiUser.InstallModePage.AllUsersLabel ${WM_SETTEXT} 0 "STR:$0$\r$\n($(MULTIUSER_RUN_AS_ADMIN))" ; only when $PerMachineOptionAvailable = 0, we add that comment to the disabled control itself
 			${orif} $CmdLineInstallMode != ""			
 			EnableWindow $MultiUser.InstallModePage.AllUsersLabel 0 ; start out disabled
 			EnableWindow $MultiUser.InstallModePage.AllUsers 0 ; start out disabled			
@@ -841,10 +841,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeLeave
 		System::Store S 
 		
-		!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION} == 1 ; if elevation is allowed		
+		!if ${MULTIUSER_INSTALLMODE_ALLOW_ELEVATION} = 1 ; if elevation is allowed
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
 			
-			${if} $0 == 1
+			${if} $0 = 1
 				HideWindow
 				!insertmacro UAC_RunElevated
 				;MessageBox MB_OK "[$0]/[$1]/[$2]/[$3]"
@@ -908,7 +908,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				
 		StrCpy $0 "$MultiUser.InstallMode"
 		; if necessary, display text for different install mode rather than the actual one in $MultiUser.InstallMode
-		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
+		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""			
 				${if} $MultiUser.InstallMode == "AllUsers" ; user selected "all users" 
 					${if} $HasPerMachineInstallation$HasPerUserInstallation == "01"
@@ -923,7 +923,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		; set label text
 		StrCpy $1 ""
 		${if} $0 == "AllUsers" ; all users
-			${if} $HasPerMachineInstallation == 1
+			${if} $HasPerMachineInstallation = 1
 				${${UNINSTALLER_PREFIX}StrRep} "$1" "$(MULTIUSER_INSTALLED_ALL_USERS)" "{VERSION}" "$PerMachineInstallationVersion"
 				${${UNINSTALLER_PREFIX}StrRep} "$1" "$1" "{FOLDER}" "$PerMachineInstallationFolder"
 
@@ -948,11 +948,11 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${else}
 				StrCpy $1 "$(MULTIUSER_NEW_INSTALLATION_ALL_USERS)"
 			${endif}
-			${if} $IsAdmin == 0
+			${if} $IsAdmin = 0
 				StrCpy $1 "$1 $(MULTIUSER_ADMIN_CREDENTIALS_REQUIRED)"
 			${endif}		
 		${else} ; current user
-			${if} $HasPerUserInstallation == 1
+			${if} $HasPerUserInstallation = 1
 				${${UNINSTALLER_PREFIX}StrRep} "$1" "$(MULTIUSER_INSTALLED_CURRENT_USER)" "{VERSION}" "$PerUserInstallationVersion"
 				${${UNINSTALLER_PREFIX}StrRep} "$1" "$1" "{FOLDER}" "$PerUserInstallationFolder"
 			
@@ -1004,7 +1004,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		Exch $0 ; get clicked control's HWND, which is on the stack in $0
 
 		; set InstallMode
-		${if} $0 == $MultiUser.InstallModePage.AllUsers
+		${if} $0 = $MultiUser.InstallModePage.AllUsers
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers
 		${else}	
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
@@ -1018,7 +1018,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 !macro MULTIUSER_GetCurrentUserString VAR
 	StrCpy ${VAR} ""
-	!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} != 0
+	!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} <> 0
 		${if} $MultiUser.InstallMode == "CurrentUser" 
 			${orif} $MultiUser.InstallMode == "" ; called from InitChecks
 			StrCpy ${VAR} " (current user)"
