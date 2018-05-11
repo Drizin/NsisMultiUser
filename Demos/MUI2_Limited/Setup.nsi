@@ -27,7 +27,7 @@
 !if ${PLATFORM} == "Win64"
 	!define MULTIUSER_INSTALLMODE_64_BIT 1
 !endif
-!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"	
+!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"
 
 ; Variables
 Var StartMenuFolder
@@ -39,19 +39,21 @@ BrandingText "©2018 ${COMPANY_NAME}"
 
 AllowSkipFiles off
 SetOverwrite on ; (default setting) set to on except for where it is manually switched off
-ShowInstDetails show 
+ShowInstDetails show
 Unicode true ; properly display all languages (Installer will not work on Windows 95, 98 or ME!)
 SetCompressor /SOLID lzma
+
+!insertmacro DeleteRetryAbortFunc ""
 
 ; Interface Settings
 !define MUI_ABORTWARNING ; Show a confirmation when cancelling the installation
 !define MUI_LANGDLL_ALLLANGUAGES ; Show all languages, despite user's codepage
 
 ; Remember the installer language
-!define MUI_LANGDLL_REGISTRY_ROOT SHCTX 
-!define MUI_LANGDLL_REGISTRY_KEY "${SETTINGS_REG_KEY}" 
+!define MUI_LANGDLL_REGISTRY_ROOT SHCTX
+!define MUI_LANGDLL_REGISTRY_KEY "${SETTINGS_REG_KEY}"
 !define MUI_LANGDLL_REGISTRY_VALUENAME "Language"
-	
+
 ; Pages
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
 !insertmacro MUI_PAGE_WELCOME
@@ -65,7 +67,7 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_LICENSE "readme.txt"
 
 !define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION PageInstallModeChangeMode
-!insertmacro MULTIUSER_PAGE_INSTALLMODE 
+!insertmacro MULTIUSER_PAGE_INSTALLMODE
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !insertmacro MUI_PAGE_COMPONENTS
@@ -85,15 +87,15 @@ SetCompressor /SOLID lzma
 
 !insertmacro MUI_PAGE_INSTFILES
 
-!define MUI_FINISHPAGE_RUN 
+!define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_FUNCTION PageFinishRun
 !insertmacro MUI_PAGE_FINISH
 
 ; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
 !include UninstallPages.nsh
 
-; Languages (first is default language) - must be inserted after all pages 
-!insertmacro MUI_LANGUAGE "English" 
+; Languages (first is default language) - must be inserted after all pages
+!insertmacro MUI_LANGUAGE "English"
 !insertmacro MUI_LANGUAGE "Bulgarian"
 !insertmacro MULTIUSER_LANGUAGE_INIT
 
@@ -101,92 +103,92 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_RESERVEFILE_LANGDLL
 
 ; Sections
-InstType "Typical" 
-InstType "Minimal" 
-InstType "Full" 
+InstType "Typical"
+InstType "Minimal"
+InstType "Full"
 
 Section "Core Files (required)" SectionCoreFiles
 	SectionIn 1 2 3 RO
-				
+
 	${if} $HasCurrentModeInstallation == 1 ; if there's an installed version, remove all optinal components (except "Core Files")
 		; Clean up "Documentation"
 		!insertmacro DeleteRetryAbort "$INSTDIR\readme.txt"
-	
+
 		; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
 		${if} "$StartMenuFolder" != ""
 			RMDir /r "$SMPROGRAMS\$StartMenuFolder"
-		${endif}	
-	
+		${endif}
+
 		; Clean up "Dektop Icon"
 		StrCpy $0 "$DESKTOP\${PRODUCT_NAME}.lnk"
 		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} != 0
-			${if} $MultiUser.InstallMode == "CurrentUser" 
+			${if} $MultiUser.InstallMode == "CurrentUser"
 				StrCpy $0 "$DESKTOP\${PRODUCT_NAME} (current user).lnk"
-			${endif}	
-		!endif		
+			${endif}
+		!endif
 		!insertmacro DeleteRetryAbort "$0"
-		
+
 		; Clean up "Start Menu Icon"
 		StrCpy $0 "$STARTMENU\${PRODUCT_NAME}.lnk"
 		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} != 0
-			${if} $MultiUser.InstallMode == "CurrentUser" 
+			${if} $MultiUser.InstallMode == "CurrentUser"
 				StrCpy $0 "$STARTMENU\${PRODUCT_NAME} (current user).lnk"
-			${endif}	
-		!endif				
+			${endif}
+		!endif
 		!insertmacro DeleteRetryAbort "$0"
-			
+
 		; Clean up "Quick Launch Icon"
-		!insertmacro DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"		
+		!insertmacro DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"
 	${endif}
 
 	SetOutPath $INSTDIR
 	; Write uninstaller and registry uninstall info as the first step,
-	; so that the user has the option to run the uninstaller if sth. goes wrong 
-	WriteUninstaller "${UNINSTALL_FILENAME}"			
+	; so that the user has the option to run the uninstaller if sth. goes wrong
+	WriteUninstaller "${UNINSTALL_FILENAME}"
 	; or this if you're using signing:
 	; File "${UNINSTALL_FILENAME}"
-	!insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys		
+	!insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
 
-	File "C:\Windows\System32\${PROGEXE}" 
+	File "C:\Windows\System32\${PROGEXE}"
 	!ifdef LICENSE_FILE
-		File ".\..\..\${LICENSE_FILE}"	
+		File ".\..\..\${LICENSE_FILE}"
 	!endif
 SectionEnd
 
-Section "Documentation" SectionDocumentation	
+Section "Documentation" SectionDocumentation
 	SectionIn 1 3
-	
-	SetOutPath $INSTDIR	
-	File "readme.txt" 
-	
+
+	SetOutPath $INSTDIR
+	File "readme.txt"
+
 SectionEnd
 
 SectionGroup /e "Integration" SectionGroupIntegration
 Section "Program Group" SectionProgramGroup
-	SectionIn 1	3
-	
+	SectionIn 1 3
+
 	!insertmacro MUI_STARTMENU_WRITE_BEGIN ""
 
 		CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
 		CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
-			
+
 		!ifdef LICENSE_FILE
-			CreateShortCut "$SMPROGRAMS\$StartMenuFolder\License Agreement.lnk" "$INSTDIR\${LICENSE_FILE}"	
+			CreateShortCut "$SMPROGRAMS\$StartMenuFolder\License Agreement.lnk" "$INSTDIR\${LICENSE_FILE}"
 		!endif
-		${if} $MultiUser.InstallMode == "AllUsers" 
+		${if} $MultiUser.InstallMode == "AllUsers"
 			CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/allusers"
 		${else}
 			CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/currentuser"
 		${endif}
-	
-	!insertmacro MUI_STARTMENU_WRITE_END	
+
+	!insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
 Section "Dektop Icon" SectionDesktopIcon
 	SectionIn 1 3
 
 	!insertmacro MULTIUSER_GetCurrentUserString $0
-	CreateShortCut "$DESKTOP\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"	
+	CreateShortCut "$DESKTOP\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 
 Section /o "Start Menu Icon" SectionStartMenuIcon
@@ -196,7 +198,7 @@ Section /o "Start Menu Icon" SectionStartMenuIcon
 	CreateShortCut "$STARTMENU\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 
-Section /o "Quick Launch" SectionQuickLaunchIcon
+Section /o "Quick Launch Icon (current user only)" SectionQuickLaunchIcon
 	SectionIn 3
 
 	; The $QUICKLAUNCH folder is always only for the current user
@@ -212,7 +214,7 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionCoreFiles} "Core files requred to run ${PRODUCT_NAME}."
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionDocumentation} "Help files for ${PRODUCT_NAME}."
-	
+
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionGroupIntegration} "Select how to integrate the program in Windows."
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionProgramGroup} "Create a ${PRODUCT_NAME} program group under Start Menu > Programs."
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionDesktopIcon} "Create ${PRODUCT_NAME} icon on the Desktop."
@@ -220,24 +222,22 @@ SectionEnd
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionQuickLaunchIcon} "Create ${PRODUCT_NAME} icon in Quick Launch."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
-; Callbacks 
-!insertmacro DeleteRetryAbortFunc "" ; define installer Function DeleteRetryAbort, not normally used
-
+; Callbacks
 Function .onInit
 	!insertmacro CheckPlatform ${PLATFORM}
 	!insertmacro CheckMinWinVer ${MIN_WIN_VER}
 	${ifnot} ${UAC_IsInnerInstance}
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
-	${endif}	
+	${endif}
 
-	!insertmacro MULTIUSER_INIT		
+	!insertmacro MULTIUSER_INIT
 
 	${if} $IsInnerInstance == 1
 		!insertmacro MUI_LANGDLL_DISPLAY
 	${endif}
 FunctionEnd
 
-Function PageWelcomeLicensePre		
+Function PageWelcomeLicensePre
 	${if} $InstallShowPagesBeforeComponents == 0
 		Abort ; don't display the Welcome and License pages
 	${endif}
@@ -245,39 +245,39 @@ FunctionEnd
 
 Function PageInstallModeChangeMode
 	!insertmacro MUI_STARTMENU_GETFOLDER "" $StartMenuFolder
-	
+
 	${if} "$StartMenuFolder" == "${MUI_STARTMENUPAGE_DEFAULTFOLDER}"
 		!insertmacro MULTIUSER_GetCurrentUserString $0
 		StrCpy $StartMenuFolder "$StartMenuFolder$0"
-	${endif}	
+	${endif}
 FunctionEnd
 
-Function PageDirectoryPre	
-	GetDlgItem $0 $HWNDPARENT 1		
-	${if} ${SectionIsSelected} ${SectionProgramGroup}		
+Function PageDirectoryPre
+	GetDlgItem $0 $HWNDPARENT 1
+	${if} ${SectionIsSelected} ${SectionProgramGroup}
 		SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ; this is not the last page before installing
 	${else}
 		SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)" ; this is the last page before installing
-	${endif}		
+	${endif}
 FunctionEnd
 
 Function PageDirectoryShow
 	${if} $CmdLineDir != ""
 		${orif} $HasCurrentModeInstallation == 1
 		FindWindow $R1 "#32770" "" $HWNDPARENT
-		
+
 		GetDlgItem $0 $R1 1019 ; Directory edit
 		SendMessage $0 ${EM_SETREADONLY} 1 0 ; read-only is better than disabled, as user can copy contents
-		
+
 		GetDlgItem $0 $R1 1001 ; Browse button
-		EnableWindow $0 0	
-	${endif}			
+		EnableWindow $0 0
+	${endif}
 FunctionEnd
 
 Function PageStartMenuPre
 	${ifnot} ${SectionIsSelected} ${SectionProgramGroup}
 		Abort ; don't display this dialog if SectionProgramGroup is not selected
-	${endif}	
+	${endif}
 FunctionEnd
 
 Function PageFinishRun
