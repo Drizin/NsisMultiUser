@@ -928,7 +928,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				${${UNINSTALLER_PREFIX}StrRep} "$1" "$1" "{FOLDER}" "$PerMachineInstallationFolder"
 
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
-					${if} $PerMachineInstallationVersion == ${VERSION}
+					${if} $PerMachineInstallationVersion == "${VERSION}"
 						${if} $MultiUser.InstallMode == "AllUsers"
 							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_ALL_USERS)" "{VERSION}" "$PerMachineInstallationVersion"
 						${else}	
@@ -957,7 +957,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				${${UNINSTALLER_PREFIX}StrRep} "$1" "$1" "{FOLDER}" "$PerUserInstallationFolder"
 			
 				!if "${UNINSTALLER_FUNCPREFIX}" == ""
-					${if} $PerUserInstallationVersion == ${VERSION}
+					${if} $PerUserInstallationVersion == "${VERSION}"
 						${if} $MultiUser.InstallMode == "AllUsers"
 							${${UNINSTALLER_PREFIX}StrRep} "$2" "$(MULTIUSER_REINSTALL_SAME_VERSION_ALL_USERS)" "{VERSION}" "$PerUserInstallationVersion"
 						${else}	
