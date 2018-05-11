@@ -33,7 +33,7 @@ Section /o "un.Program Settings" SectionRemoveSettings
 SectionEnd
 
 Section "-Uninstall" ; hidden section, must always be the last one!
-	!insertmacro un.DeleteRetryAbort "$INSTDIR\${UNINSTALL_FILENAME}"
+	Delete "$INSTDIR\${UNINSTALL_FILENAME}" ; we cannot use un.DeleteRetryAbort here - when using the _? parameter the uninstaller cannot delete itself and Delete fails, which is OK
 	; remove the directory only if it is empty - the user might have saved some files in it
 	RMDir "$INSTDIR"
 	
