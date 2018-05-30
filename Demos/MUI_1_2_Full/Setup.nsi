@@ -177,6 +177,9 @@ Section "Core Files (required)" SectionCoreFiles
 	; or this if you're using signing:
 	; File "${UNINSTALL_FILENAME}"
 	!insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
+	${if} ${silent} ; MUI doesn't write language in silent mode
+	    WriteRegStr "${MUI_LANGDLL_REGISTRY_ROOT}" "${MUI_LANGDLL_REGISTRY_KEY}" "${MUI_LANGDLL_REGISTRY_VALUENAME}" $LANGUAGE
+	${endif}
 
 	File "C:\Windows\System32\${PROGEXE}"
 	!ifdef LICENSE_FILE

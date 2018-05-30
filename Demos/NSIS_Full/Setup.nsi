@@ -154,7 +154,7 @@ Section "Core Files (required)" SectionCoreFiles
 	; or this if you're using signing:
 	; File "${UNINSTALL_FILENAME}"
 	!insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
-	WriteRegStr ${LANGDLL_REGISTRY_ROOT} "${LANGDLL_REGISTRY_KEY}" "${LANGDLL_REGISTRY_VALUENAME}" $LANGUAGE ; write language
+	WriteRegStr "${LANGDLL_REGISTRY_ROOT}" "${LANGDLL_REGISTRY_KEY}" "${LANGDLL_REGISTRY_VALUENAME}" $LANGUAGE ; write language
 
 	File "C:\Windows\System32\${PROGEXE}"
 	!ifdef LICENSE_FILE
@@ -224,24 +224,21 @@ Function .onInit
 	!insertmacro MULTIUSER_INIT
 	
 	${if} $IsInnerInstance = 0
+		${andifnot} ${silent}
 		ReadRegStr $LANGUAGE ${LANGDLL_REGISTRY_ROOT} "${LANGDLL_REGISTRY_KEY}" "${LANGDLL_REGISTRY_VALUENAME}"
 		${if} "$LANGUAGE" == ""
-			${if} ${silent}
-			    StrCpy $LANGUAGE ${LANG_ENGLISH}
-			${else}
-			    ; languages will be alphabetically sorted, first alpabetical will be selected
-				Push ""
-				Push ${LANG_ENGLISH}
-				Push "English"
-				Push ${LANG_BULGARIAN}
-				Push "Bulgarian"
-				Push "A" ; A means auto count languages; for the auto count to work the first empty push (Push "") must remain
-				LangDLL::LangDialog "Installer Language" "Please select the language of the installer"
+		    ; languages will be alphabetically sorted, first alpabetical will be selected
+			Push ""
+			Push ${LANG_ENGLISH}
+			Push "English"
+			Push ${LANG_BULGARIAN}
+			Push "Bulgarian"
+			Push "A" ; A means auto count languages; for the auto count to work the first empty push (Push "") must remain
+			LangDLL::LangDialog "Installer Language" "Please select the language of the installer"
 
-				Pop $LANGUAGE
-				${if} "$LANGUAGE" == "cancel"
-					Abort
-				${endif}
+			Pop $LANGUAGE
+			${if} "$LANGUAGE" == "cancel"
+				Abort
 			${endif}
 		${endif}
 	${endif}
