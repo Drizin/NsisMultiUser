@@ -79,6 +79,27 @@ PageExEnd
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\Bulgarian.nlf"
 
+!macro LANGDLL_DISPLAY
+	${ifnot} ${silent}
+		ReadRegStr $LANGUAGE ${LANGDLL_REGISTRY_ROOT} "${LANGDLL_REGISTRY_KEY}" "${LANGDLL_REGISTRY_VALUENAME}"
+		${if} "$LANGUAGE" == ""
+		    ; languages will be alphabetically sorted, first alpabetical will be selected
+			Push ""
+			Push ${LANG_ENGLISH}
+			Push "English"
+			Push ${LANG_BULGARIAN}
+			Push "Bulgarian"
+			Push "A" ; A means auto count languages; for the auto count to work the first empty push (Push "") must remain
+			LangDLL::LangDialog "Installer Language" "Please select the language of the installer"
+
+			Pop $LANGUAGE
+			${if} "$LANGUAGE" == "cancel"
+				Abort
+			${endif}
+		${endif}
+	${endif}
+!macroend
+
 !insertmacro MULTIUSER_LANGUAGE_INIT
 
 ; Sections
@@ -224,23 +245,7 @@ Function .onInit
 	!insertmacro MULTIUSER_INIT
 	
 	${if} $IsInnerInstance = 0
-		${andifnot} ${silent}
-		ReadRegStr $LANGUAGE ${LANGDLL_REGISTRY_ROOT} "${LANGDLL_REGISTRY_KEY}" "${LANGDLL_REGISTRY_VALUENAME}"
-		${if} "$LANGUAGE" == ""
-		    ; languages will be alphabetically sorted, first alpabetical will be selected
-			Push ""
-			Push ${LANG_ENGLISH}
-			Push "English"
-			Push ${LANG_BULGARIAN}
-			Push "Bulgarian"
-			Push "A" ; A means auto count languages; for the auto count to work the first empty push (Push "") must remain
-			LangDLL::LangDialog "Installer Language" "Please select the language of the installer"
-
-			Pop $LANGUAGE
-			${if} "$LANGUAGE" == "cancel"
-				Abort
-			${endif}
-		${endif}
+		!insertmacro LANGDLL_DISPLAY
 	${endif}
 FunctionEnd
 
