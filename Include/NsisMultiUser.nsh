@@ -299,7 +299,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${else} 
 				!if "${UNINSTALLER_FUNCPREFIX}" == "" ; installer
 					!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
-						${if} $HasPerMachineInstallation$HasPerUserInstallation == "10"
+						${if} $HasPerMachineInstallation = 1
+							${andif} $HasPerUserInstallation = 0
 							StrCpy $0 1 ; has to uninstall the per-machine istalattion, which requires admin rights
 						${endif}			
 					!endif				
@@ -435,7 +436,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			${endif}	
 		!else				
 			${if} $CmdLineInstallMode == ""
-				${andif} $HasPerMachineInstallation$HasPerUserInstallation == "11"
+				${andif} $HasPerMachineInstallation = 1
+				${andif} $HasPerUserInstallation = 1
 				StrCpy $UninstallShowBackButton 1 ; make sure we show Back button only if dialog was displayed, i.e. uninstaller did not elevate in the beginning (see when MultiUser.Elevate is called)
 			${else}		
 				StrCpy $UninstallShowBackButton 0
@@ -566,7 +568,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		${endif}		
 		
 		!if "${UNINSTALLER_FUNCPREFIX}" != ""
-			${if} $HasPerMachineInstallation$HasPerUserInstallation == "00"
+			${if} $HasPerMachineInstallation = 0
+				${andif} $HasPerUserInstallation = 0
 				!insertmacro MULTIUSER_SET_ERROR ${MULTIUSER_ERROR_NOT_INSTALLED}
 			${endif}
 		!endif
@@ -641,7 +644,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 		; if there's only one installed version
 		; when uninstaller is invoked from the "add/remove programs", Windows will automatically start uninstaller elevated if uninstall keys are in HKLM
-		${if} $HasPerMachineInstallation$HasPerUserInstallation == "10"				
+		${if} $HasPerMachineInstallation = 1
+			${andif} $HasPerUserInstallation = 0
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""
 				${if} $PerMachineOptionAvailable = 1
 					Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers
@@ -658,7 +662,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.AllUsers
 				StrCpy $DisplayDialog 0							
 			!endif
-		${elseif} $HasPerMachineInstallation$HasPerUserInstallation == "01"
+		${elseif} $HasPerMachineInstallation = 0
+			${andif} $HasPerUserInstallation = 1
 			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallMode.CurrentUser
 			!if "${UNINSTALLER_FUNCPREFIX}" != ""
 				StrCpy $DisplayDialog 0				
@@ -911,10 +916,12 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""			
 				${if} $MultiUser.InstallMode == "AllUsers" ; user selected "all users" 
-					${if} $HasPerMachineInstallation$HasPerUserInstallation == "01"
+					${if} $HasPerMachineInstallation = 0
+						${andif} $HasPerUserInstallation = 1
 						StrCpy $0 "CurrentUser" ; display information for the "current user" installation
 					${endif}	
-				${elseif} $HasPerMachineInstallation$HasPerUserInstallation == "10" ; user selected "current user"
+				${elseif} $HasPerMachineInstallation = 1
+					${andif} $HasPerUserInstallation = 0 ; user selected "current user"
 					StrCpy $0 "AllUsers" ; display information for the "all users" installation
 				${endif}
 			!endif
