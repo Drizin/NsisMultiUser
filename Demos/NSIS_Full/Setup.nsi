@@ -6,6 +6,7 @@
 !include NsisMultiUser.nsh
 !include LogicLib.nsh
 !include ".\..\Common\Utils.nsh"
+!include StdUtils.nsh
 
 ; Installer defines
 !define PRODUCT_NAME "NsisMultiUser NSIS Full Demo" ; name of the application as displayed to the user
@@ -63,6 +64,7 @@ PageExEnd
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 
 PageEx components
+	PageCallbacks PageComponentsPre EmptyCallback EmptyCallback
 PageExEnd
 
 PageEx directory
@@ -78,6 +80,7 @@ PageExEnd
 ; Languages (first alphabetical is default language) - must be inserted after all pages
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\Bulgarian.nlf"
+!insertmacro MULTIUSER_LANGUAGE_INIT
 
 !macro LANGDLL_DISPLAY
 	${ifnot} ${silent}
@@ -100,7 +103,8 @@ LoadLanguageFile "${NSISDIR}\Contrib\Language files\Bulgarian.nlf"
 	${endif}
 !macroend
 
-!insertmacro MULTIUSER_LANGUAGE_INIT
+; Reserve files
+ReserveFile /plugin LangDLL.dll
 
 ; Sections
 InstType "Typical"
@@ -218,15 +222,23 @@ SectionEnd
 Section /o "Start Menu Icon" SectionStartMenuIcon
 	SectionIn 3
 
-	!insertmacro MULTIUSER_GetCurrentUserString $0
-	CreateShortCut "$STARTMENU\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
+	${if} ${AtLeastWin7}
+		${StdUtils.InvokeShellVerb} $0 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.PinToStart}
+	${else}
+		!insertmacro MULTIUSER_GetCurrentUserString $0
+		CreateShortCut "$STARTMENU\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
+	${endif}
 SectionEnd
 
-Section /o "Quick Launch Icon (current user only)" SectionQuickLaunchIcon
+Section /o "Quick Launch Icon" SectionQuickLaunchIcon
 	SectionIn 3
 
-	; The $QUICKLAUNCH folder is always only for the current user
-	CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+	${if} ${AtLeastWin7}
+		${StdUtils.InvokeShellVerb} $0 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.PinToTaskbar}
+	${else}
+		; The $QUICKLAUNCH folder is always only for the current user
+		CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+	${endif}
 SectionEnd
 SectionGroupEnd
 
@@ -255,6 +267,19 @@ FunctionEnd
 Function PageWelcomeLicensePre
 	${if} $InstallShowPagesBeforeComponents = 0
 		Abort ; don't display the Welcome and License pages
+	${endif}
+FunctionEnd
+
+Function PageComponentsPre
+	${if} $MultiUser.InstallMode == "AllUsers"
+		${if} ${AtLeastWin7} ; add "(current user only)" text to section "Start Menu Icon"
+			SectionGetText ${SectionStartMenuIcon} $0
+			SectionSetText ${SectionStartMenuIcon} "$0 (current user only)"
+		${endif}
+
+		; add "(current user only)" text to section "Quick Launch Icon"
+		SectionGetText ${SectionQuickLaunchIcon} $0
+		SectionSetText ${SectionQuickLaunchIcon} "$0 (current user only)"
 	${endif}
 FunctionEnd
 

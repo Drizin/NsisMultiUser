@@ -9,6 +9,7 @@
 !include NsisMultiUser.nsh
 !include LogicLib.nsh
 !include ".\..\Common\Utils.nsh"
+!include StdUtils.nsh
 
 ; Installer defines
 !define PRODUCT_NAME "NsisMultiUser MUI_1_2 Full Demo" ; name of the application as displayed to the user
@@ -72,6 +73,7 @@ SetCompressor /SOLID lzma
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageComponentsPre
 !insertmacro MUI_PAGE_COMPONENTS
 
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageDirectoryPre
@@ -225,15 +227,23 @@ SectionEnd
 Section /o "Start Menu Icon" SectionStartMenuIcon
 	SectionIn 3
 
-	!insertmacro MULTIUSER_GetCurrentUserString $0
-	CreateShortCut "$STARTMENU\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
+	${if} ${AtLeastWin7}
+		${StdUtils.InvokeShellVerb} $0 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.PinToStart}
+	${else}
+		!insertmacro MULTIUSER_GetCurrentUserString $0
+		CreateShortCut "$STARTMENU\${PRODUCT_NAME}$0.lnk" "$INSTDIR\${PROGEXE}"
+	${endif}
 SectionEnd
 
-Section /o "Quick Launch Icon (current user only)" SectionQuickLaunchIcon
+Section /o "Quick Launch Icon" SectionQuickLaunchIcon
 	SectionIn 3
 
-	; The $QUICKLAUNCH folder is always only for the current user
-	CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+	${if} ${AtLeastWin7}
+		${StdUtils.InvokeShellVerb} $0 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.PinToTaskbar}
+	${else}
+		; The $QUICKLAUNCH folder is always only for the current user
+		CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+	${endif}
 SectionEnd
 SectionGroupEnd
 
@@ -280,6 +290,19 @@ Function PageInstallModeChangeMode
 	${if} "$StartMenuFolder" == "${MUI_STARTMENUPAGE_DEFAULTFOLDER}"
 		!insertmacro MULTIUSER_GetCurrentUserString $0
 		StrCpy $StartMenuFolder "$StartMenuFolder$0"
+	${endif}
+FunctionEnd
+
+Function PageComponentsPre
+	${if} $MultiUser.InstallMode == "AllUsers"
+		${if} ${AtLeastWin7} ; add "(current user only)" text to section "Start Menu Icon"
+			SectionGetText ${SectionStartMenuIcon} $0
+			SectionSetText ${SectionStartMenuIcon} "$0 (current user only)"
+		${endif}
+
+		; add "(current user only)" text to section "Quick Launch Icon"
+		SectionGetText ${SectionQuickLaunchIcon} $0
+		SectionSetText ${SectionQuickLaunchIcon} "$0 (current user only)"
 	${endif}
 FunctionEnd
 

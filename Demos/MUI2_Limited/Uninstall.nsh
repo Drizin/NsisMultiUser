@@ -1,6 +1,24 @@
 Section "un.Program Files" SectionUninstallProgram
 	SectionIn RO
 
+	!insertmacro MULTIUSER_GetCurrentUserString $0
+	
+	; InvokeShellVerb only works on existing files, so we call it before deleting the EXE, https://github.com/lordmulder/stdutils/issues/22
+	
+	; Clean up "Start Menu Icon"
+	${if} ${AtLeastWin7}
+		${StdUtils.InvokeShellVerb} $1 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.UnpinFromStart}
+	${else}
+		!insertmacro un.DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
+	${endif}
+
+	; Clean up "Quick Launch Icon"
+	${if} ${AtLeastWin7}
+		${StdUtils.InvokeShellVerb} $1 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.UnpinFromTaskbar}
+	${else}
+		!insertmacro un.DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"
+	${endif}
+
 	; Try to delete the EXE as the first step - if it's in use, don't remove anything else
 	!insertmacro un.DeleteRetryAbort "$INSTDIR\${PROGEXE}"
 	!ifdef LICENSE_FILE
@@ -16,15 +34,7 @@ Section "un.Program Files" SectionUninstallProgram
 	${endif}
 
 	; Clean up "Dektop Icon"
-	!insertmacro MULTIUSER_GetCurrentUserString $0
 	!insertmacro un.DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
-
-	; Clean up "Start Menu Icon"
-	!insertmacro MULTIUSER_GetCurrentUserString $0
-	!insertmacro un.DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
-
-	; Clean up "Quick Launch Icon"
-	!insertmacro un.DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"
 SectionEnd
 
 Section /o "un.Program Settings" SectionRemoveSettings
