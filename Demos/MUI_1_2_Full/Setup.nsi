@@ -18,7 +18,8 @@
 !define COMPANY_NAME "Alex Mitev" ; company, used for registry tree hierarchy
 !define PLATFORM "Win64"
 !define MIN_WIN_VER "XP"
-!define SINGLE_INSTANCE_ID "${COMPANY_NAME} ${PRODUCT_NAME} Unique ID" ; do not change this between program versions!
+!define SETUP_MUTEX "${COMPANY_NAME} ${PRODUCT_NAME} Setup Mutex" ; do not change this between program versions!
+!define APP_MUTEX "${COMPANY_NAME} ${PRODUCT_NAME} App Mutex" ; do not change this between program versions!
 !define SETTINGS_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define LICENSE_FILE "License.txt" ; license file, optional
 
@@ -268,7 +269,8 @@ Function .onInit
 	!insertmacro CheckPlatform ${PLATFORM}
 	!insertmacro CheckMinWinVer ${MIN_WIN_VER}
 	${ifnot} ${UAC_IsInnerInstance}
-		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
+		!insertmacro CheckSingleInstance "Setup" "Global" "${SETUP_MUTEX}"
+		!insertmacro CheckSingleInstance "Application" "Local" "${APP_MUTEX}"
 	${endif}
 
 	!insertmacro MULTIUSER_INIT

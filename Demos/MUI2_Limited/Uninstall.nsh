@@ -1,3 +1,8 @@
+; Variables
+Var RunningFromInstaller ; installer started uninstaller using /uninstall parameter
+
+!insertmacro DeleteRetryAbortFunc "un."
+
 Section "un.Program Files" SectionUninstallProgram
 	SectionIn RO
 
@@ -70,7 +75,8 @@ Function un.onInit
 
 	${ifnot} ${UAC_IsInnerInstance}
 		${andif} $RunningFromInstaller = 0
-		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
+		!insertmacro CheckSingleInstance "Setup" "Global" "${SETUP_MUTEX}"
+		!insertmacro CheckSingleInstance "Application" "Local" "${APP_MUTEX}"
 	${endif}
 
 	!insertmacro MULTIUSER_UNINIT

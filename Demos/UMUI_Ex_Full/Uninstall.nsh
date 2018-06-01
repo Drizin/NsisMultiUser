@@ -1,3 +1,7 @@
+; Variables
+Var SemiSilentMode ; installer started uninstaller in semi-silent mode using /SS parameter
+Var RunningFromInstaller ; installer started uninstaller using /uninstall parameter
+
 !insertmacro DeleteRetryAbortFunc "un."
 
 Section "un.Program Files" SectionUninstallProgram
@@ -80,6 +84,7 @@ Function un.onInit
 	${GetOptions} $R0 "/SS" $R1
 	${ifnot} ${errors}
 		StrCpy $SemiSilentMode 1
+		StrCpy $RunningFromInstaller 1
 		SetAutoClose true ; auto close (if no errors) if we are called from the installer; if there are errors, will be automatically set to false
 	${else}
 		StrCpy $SemiSilentMode 0
@@ -87,8 +92,8 @@ Function un.onInit
 
 	${ifnot} ${UAC_IsInnerInstance}
 		${andif} $RunningFromInstaller = 0
-		${andif} $SemiSilentMode = 0
-		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
+		!insertmacro CheckSingleInstance "Setup" "Global" "${SETUP_MUTEX}"
+		!insertmacro CheckSingleInstance "Application" "Local" "${APP_MUTEX}"
 	${endif}
 
 	!insertmacro MULTIUSER_UNINIT
