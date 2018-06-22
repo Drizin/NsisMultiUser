@@ -45,6 +45,12 @@
 	System::Call 'kernel32::CreateMutex(i 0, i 0, t "${SCOPE}\${MUTEX_NAME}") i .r0 ?e'
 	Pop $1 ; the stack contains the result of GetLastError
 	
+	!if "${TYPE}" == "Application"
+	    ${if} $0 <> 0
+			System::Call 'kernel32::CloseHandle(i $0)' ; close the Application mutex
+		${endif}
+	!endif
+	
 	${if} $1 = ${ERROR_ALREADY_EXISTS}
 		${orif} $1 = ${ERROR_ACCESS_DENIED}	; ERROR_ACCESS_DENIED means the mutex was created by another user and we don't have access to open it, so application is running
 		; will display NSIS taskbar button, no way to hide it before GUIInit, $HWNDPARENT is 0
@@ -76,20 +82,21 @@
 	FunctionEnd
 !macroend
 
-!macro DeleteRetryAbort filename
+!macro DeleteRetryAbort FILE_NAME
 	Push "$0"
 	
-	StrCpy $0 "${filename}"
+	StrCpy $0 "${FILE_NAME}"
 	Call DeleteRetryAbort
 	
 	Pop $0
 !macroend
 
-!macro un.DeleteRetryAbort filename
+!macro un.DeleteRetryAbort FILE_NAME
 	Push "$0"	
 	
-	StrCpy $0 "${filename}"
+	StrCpy $0 "${FILE_NAME}"
 	Call un.DeleteRetryAbort
 	
 	Pop $0	
 !macroend
+
