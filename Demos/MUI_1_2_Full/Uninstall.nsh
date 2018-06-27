@@ -1,8 +1,8 @@
+!include un.Utils.nsh
+
 ; Variables
 Var SemiSilentMode ; installer started uninstaller in semi-silent mode using /SS parameter
 Var RunningFromInstaller ; installer started uninstaller using /uninstall parameter
-
-!insertmacro DeleteRetryAbortFunc "un."
 
 Section "un.Program Files" SectionUninstallProgram
 	SectionIn RO
@@ -15,24 +15,24 @@ Section "un.Program Files" SectionUninstallProgram
 	${if} ${AtLeastWin7}
 		${StdUtils.InvokeShellVerb} $1 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.UnpinFromStart}
 	${else}
-		!insertmacro un.DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
+		!insertmacro DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
 	${endif}
 
 	; Clean up "Quick Launch Icon"
 	${if} ${AtLeastWin7}
 		${StdUtils.InvokeShellVerb} $1 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.UnpinFromTaskbar}
 	${else}
-		!insertmacro un.DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"
+		!insertmacro DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"
 	${endif}
 
 	; Try to delete the EXE as the first step - if it's in use, don't remove anything else
-	!insertmacro un.DeleteRetryAbort "$INSTDIR\${PROGEXE}"
+	!insertmacro DeleteRetryAbort "$INSTDIR\${PROGEXE}"
 	!ifdef LICENSE_FILE
-		!insertmacro un.DeleteRetryAbort "$INSTDIR\${LICENSE_FILE}"
+		!insertmacro DeleteRetryAbort "$INSTDIR\${LICENSE_FILE}"
 	!endif
 
 	; Clean up "Documentation"
-	!insertmacro un.DeleteRetryAbort "$INSTDIR\readme.txt"
+	!insertmacro DeleteRetryAbort "$INSTDIR\readme.txt"
 
 	; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
 	${if} "$StartMenuFolder" != ""
@@ -40,7 +40,7 @@ Section "un.Program Files" SectionUninstallProgram
 	${endif}
 
 	; Clean up "Dektop Icon"
-	!insertmacro un.DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
+	!insertmacro DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
 SectionEnd
 
 Section /o "un.Program Settings" SectionRemoveSettings

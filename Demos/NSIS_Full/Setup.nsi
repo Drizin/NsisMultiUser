@@ -1,11 +1,11 @@
 !addplugindir /x86-ansi ".\..\..\Plugins\x86-ansi"
 !addplugindir /x86-unicode ".\..\..\Plugins\x86-unicode"
 !addincludedir ".\..\..\Include"
+!addincludedir ".\..\Common"
 
 !include UAC.nsh
 !include NsisMultiUser.nsh
 !include LogicLib.nsh
-!include ".\..\Common\Utils.nsh"
 !include StdUtils.nsh
 
 ; Installer defines
@@ -42,7 +42,7 @@ Unicode true ; properly display all languages (Installer will not work on Window
 SetCompressor /SOLID lzma
 XPStyle on
 
-!insertmacro DeleteRetryAbortFunc ""
+!include Utils.nsh
 
 ; Remember the installer language
 !define LANGDLL_REGISTRY_ROOT SHCTX

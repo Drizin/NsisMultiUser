@@ -1,12 +1,12 @@
 !addplugindir /x86-ansi ".\..\..\Plugins\x86-ansi"
 !addplugindir /x86-unicode ".\..\..\Plugins\x86-unicode"
 !addincludedir ".\..\..\Include"
+!addincludedir ".\..\Common"
 
 !include MUI2.nsh
 !include UAC.nsh
 !include NsisMultiUser.nsh
 !include LogicLib.nsh
-!include ".\..\Common\Utils.nsh"
 !include StdUtils.nsh
 
 ; Installer defines
@@ -45,7 +45,7 @@ ShowInstDetails show
 Unicode true ; properly display all languages (Installer will not work on Windows 95, 98 or ME!)
 SetCompressor /SOLID lzma
 
-!insertmacro DeleteRetryAbortFunc ""
+!include Utils.nsh
 
 ; Interface Settings
 !define MUI_ABORTWARNING ; Show a confirmation when cancelling the installation
