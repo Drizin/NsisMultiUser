@@ -301,7 +301,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 					!if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
 						${if} $HasPerMachineInstallation = 1
 							${andif} $HasPerUserInstallation = 0
-							StrCpy $0 1 ; has to uninstall the per-machine istalattion, which requires admin rights
+							; has to uninstall the per-machine installation, which requires admin rights
+							; but signle-user installs of standard users shouldn't be elevated (run as another user)
+							StrCpy $0 2
 						${endif}
 					!endif
 				!endif
@@ -981,6 +983,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
 		${if} $0 = 1
 			StrCpy $1 "$1 $(MULTIUSER_ADMIN_CREDENTIALS_REQUIRED)"
+		${elseif} $0 = 2
+		  StrCpy $1 "$1 $(MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED)"
+		  StrCpy $0 0
 		${endif}
 
 		SendMessage $MultiUser.InstallModePage.Description ${WM_SETTEXT} 0 "STR:$1"

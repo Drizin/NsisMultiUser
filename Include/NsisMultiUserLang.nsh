@@ -16,6 +16,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ENGLISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ENGLISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ENGLISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ENGLISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ENGLISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ENGLISH} "There is no installation of $(^NameDA)."
@@ -44,6 +45,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_AFRIKAANS} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_AFRIKAANS} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_AFRIKAANS} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_AFRIKAANS} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_AFRIKAANS} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_AFRIKAANS} "There is no installation of $(^NameDA)."
@@ -72,6 +74,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ALBANIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ALBANIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ALBANIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ALBANIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ALBANIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ALBANIAN} "There is no installation of $(^NameDA)."
@@ -100,6 +103,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ARABIC} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ARABIC} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ARABIC} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ARABIC} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ARABIC} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ARABIC} "There is no installation of $(^NameDA)."
@@ -128,6 +132,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ARMENIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ARMENIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ARMENIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ARMENIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ARMENIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ARMENIAN} "There is no installation of $(^NameDA)."
@@ -156,6 +161,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ASTURIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ASTURIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ASTURIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ASTURIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ASTURIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ASTURIAN} "There is no installation of $(^NameDA)."
@@ -184,6 +190,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_BASQUE} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_BASQUE} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_BASQUE} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_BASQUE} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_BASQUE} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_BASQUE} "There is no installation of $(^NameDA)."
@@ -212,6 +219,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_BELARUSIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_BELARUSIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_BELARUSIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_BELARUSIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_BELARUSIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_BELARUSIAN} "There is no installation of $(^NameDA)."
@@ -240,6 +248,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_BOSNIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_BOSNIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_BOSNIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_BOSNIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_BOSNIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_BOSNIAN} "There is no installation of $(^NameDA)."
@@ -268,6 +277,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_BRETON} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_BRETON} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_BRETON} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_BRETON} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_BRETON} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_BRETON} "There is no installation of $(^NameDA)."
@@ -296,6 +306,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_BULGARIAN} "Деинсталиране на версия {OLD_VERSION} и инсталиране на версия {VERSION} за текущия потребител."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_BULGARIAN} "Трябва да стартирате тази програма като администратор."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_BULGARIAN} "Изисква се администраторска идентификация."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_BULGARIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_BULGARIAN} "Невалидна комбинация от параметри."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_BULGARIAN} "Няма инсталация на $(^NameDA)."
@@ -324,6 +335,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_CATALAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_CATALAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_CATALAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_CATALAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_CATALAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_CATALAN} "There is no installation of $(^NameDA)."
@@ -352,6 +364,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_CORSICAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_CORSICAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_CORSICAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_CORSICAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_CORSICAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_CORSICAN} "There is no installation of $(^NameDA)."
@@ -380,6 +393,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_CROATIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_CROATIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_CROATIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_CROATIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_CROATIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_CROATIAN} "There is no installation of $(^NameDA)."
@@ -408,6 +422,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_CZECH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_CZECH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_CZECH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_CZECH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_CZECH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_CZECH} "There is no installation of $(^NameDA)."
@@ -436,6 +451,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_DANISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_DANISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_DANISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_DANISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_DANISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_DANISH} "There is no installation of $(^NameDA)."
@@ -464,6 +480,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_DUTCH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_DUTCH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_DUTCH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_DUTCH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_DUTCH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_DUTCH} "There is no installation of $(^NameDA)."
@@ -492,6 +509,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ESPERANTO} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ESPERANTO} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ESPERANTO} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ESPERANTO} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ESPERANTO} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ESPERANTO} "There is no installation of $(^NameDA)."
@@ -520,6 +538,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ESTONIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ESTONIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ESTONIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ESTONIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ESTONIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ESTONIAN} "There is no installation of $(^NameDA)."
@@ -548,6 +567,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_FARSI} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_FARSI} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_FARSI} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_FARSI} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_FARSI} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_FARSI} "There is no installation of $(^NameDA)."
@@ -576,6 +596,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_FINNISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_FINNISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_FINNISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_FINNISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_FINNISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_FINNISH} "There is no installation of $(^NameDA)."
@@ -604,6 +625,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_FRENCH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_FRENCH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_FRENCH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_FRENCH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_FRENCH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_FRENCH} "There is no installation of $(^NameDA)."
@@ -632,6 +654,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_GALICIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_GALICIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_GALICIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_GALICIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_GALICIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_GALICIAN} "There is no installation of $(^NameDA)."
@@ -660,6 +683,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_GEORGIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_GEORGIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_GEORGIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_GEORGIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_GEORGIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_GEORGIAN} "There is no installation of $(^NameDA)."
@@ -688,6 +712,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_GERMAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_GERMAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_GERMAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_GERMAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_GERMAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_GERMAN} "There is no installation of $(^NameDA)."
@@ -716,6 +741,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_GREEK} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_GREEK} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_GREEK} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_GREEK} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_GREEK} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_GREEK} "There is no installation of $(^NameDA)."
@@ -744,6 +770,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_HEBREW} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_HEBREW} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_HEBREW} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_HEBREW} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_HEBREW} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_HEBREW} "There is no installation of $(^NameDA)."
@@ -772,6 +799,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_HUNGARIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_HUNGARIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_HUNGARIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_HUNGARIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_HUNGARIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_HUNGARIAN} "There is no installation of $(^NameDA)."
@@ -800,6 +828,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ICELANDIC} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ICELANDIC} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ICELANDIC} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ICELANDIC} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ICELANDIC} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ICELANDIC} "There is no installation of $(^NameDA)."
@@ -828,6 +857,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_INDONESIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_INDONESIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_INDONESIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_INDONESIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_INDONESIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_INDONESIAN} "There is no installation of $(^NameDA)."
@@ -856,6 +886,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_IRISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_IRISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_IRISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_IRISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_IRISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_IRISH} "There is no installation of $(^NameDA)."
@@ -884,6 +915,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ITALIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ITALIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ITALIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ITALIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ITALIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ITALIAN} "There is no installation of $(^NameDA)."
@@ -912,6 +944,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_JAPANESE} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_JAPANESE} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_JAPANESE} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_JAPANESE} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_JAPANESE} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_JAPANESE} "There is no installation of $(^NameDA)."
@@ -940,6 +973,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_KOREAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_KOREAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_KOREAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_KOREAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_KOREAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_KOREAN} "There is no installation of $(^NameDA)."
@@ -968,6 +1002,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_KURDISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_KURDISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_KURDISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_KURDISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_KURDISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_KURDISH} "There is no installation of $(^NameDA)."
@@ -996,6 +1031,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_LATVIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_LATVIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_LATVIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_LATVIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_LATVIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_LATVIAN} "There is no installation of $(^NameDA)."
@@ -1024,6 +1060,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_LITHUANIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_LITHUANIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_LITHUANIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_LITHUANIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_LITHUANIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_LITHUANIAN} "There is no installation of $(^NameDA)."
@@ -1052,6 +1089,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_LUXEMBOURGISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_LUXEMBOURGISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_LUXEMBOURGISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_LUXEMBOURGISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_LUXEMBOURGISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_LUXEMBOURGISH} "There is no installation of $(^NameDA)."
@@ -1080,6 +1118,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_MACEDONIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_MACEDONIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_MACEDONIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_MACEDONIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_MACEDONIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_MACEDONIAN} "There is no installation of $(^NameDA)."
@@ -1108,6 +1147,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_MALAY} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_MALAY} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_MALAY} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_MALAY} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_MALAY} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_MALAY} "There is no installation of $(^NameDA)."
@@ -1136,6 +1176,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_MONGOLIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_MONGOLIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_MONGOLIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_MONGOLIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_MONGOLIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_MONGOLIAN} "There is no installation of $(^NameDA)."
@@ -1164,6 +1205,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_NORWEGIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_NORWEGIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_NORWEGIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_NORWEGIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_NORWEGIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_NORWEGIAN} "There is no installation of $(^NameDA)."
@@ -1192,6 +1234,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_NORWEGIANNYNORSK} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_NORWEGIANNYNORSK} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_NORWEGIANNYNORSK} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_NORWEGIANNYNORSK} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_NORWEGIANNYNORSK} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_NORWEGIANNYNORSK} "There is no installation of $(^NameDA)."
@@ -1220,6 +1263,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_PASHTO} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_PASHTO} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_PASHTO} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_PASHTO} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_PASHTO} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_PASHTO} "There is no installation of $(^NameDA)."
@@ -1248,6 +1292,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_POLISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_POLISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_POLISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_POLISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_POLISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_POLISH} "There is no installation of $(^NameDA)."
@@ -1276,6 +1321,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_PORTUGUESE} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_PORTUGUESE} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_PORTUGUESE} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_PORTUGUESE} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_PORTUGUESE} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_PORTUGUESE} "There is no installation of $(^NameDA)."
@@ -1304,6 +1350,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_PORTUGUESEBR} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_PORTUGUESEBR} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_PORTUGUESEBR} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_PORTUGUESEBR} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_PORTUGUESEBR} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_PORTUGUESEBR} "There is no installation of $(^NameDA)."
@@ -1332,6 +1379,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_ROMANIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_ROMANIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_ROMANIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_ROMANIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_ROMANIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_ROMANIAN} "There is no installation of $(^NameDA)."
@@ -1360,6 +1408,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_RUSSIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_RUSSIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_RUSSIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_RUSSIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_RUSSIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_RUSSIAN} "There is no installation of $(^NameDA)."
@@ -1388,6 +1437,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SCOTSGAELIC} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SCOTSGAELIC} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SCOTSGAELIC} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SCOTSGAELIC} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SCOTSGAELIC} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SCOTSGAELIC} "There is no installation of $(^NameDA)."
@@ -1416,6 +1466,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SERBIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SERBIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SERBIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SERBIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SERBIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SERBIAN} "There is no installation of $(^NameDA)."
@@ -1444,6 +1495,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SERBIANLATIN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SERBIANLATIN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SERBIANLATIN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SERBIANLATIN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SERBIANLATIN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SERBIANLATIN} "There is no installation of $(^NameDA)."
@@ -1472,6 +1524,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SIMPCHINESE} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SIMPCHINESE} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SIMPCHINESE} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SIMPCHINESE} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SIMPCHINESE} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SIMPCHINESE} "There is no installation of $(^NameDA)."
@@ -1500,6 +1553,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SLOVAK} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SLOVAK} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SLOVAK} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SLOVAK} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SLOVAK} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SLOVAK} "There is no installation of $(^NameDA)."
@@ -1528,6 +1582,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SLOVENIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SLOVENIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SLOVENIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SLOVENIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SLOVENIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SLOVENIAN} "There is no installation of $(^NameDA)."
@@ -1556,6 +1611,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SPANISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SPANISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SPANISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SPANISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SPANISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SPANISH} "There is no installation of $(^NameDA)."
@@ -1584,6 +1640,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SPANISHINTERNATIONAL} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SPANISHINTERNATIONAL} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SPANISHINTERNATIONAL} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SPANISHINTERNATIONAL} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SPANISHINTERNATIONAL} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SPANISHINTERNATIONAL} "There is no installation of $(^NameDA)."
@@ -1612,6 +1669,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_SWEDISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_SWEDISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_SWEDISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_SWEDISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_SWEDISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_SWEDISH} "There is no installation of $(^NameDA)."
@@ -1640,6 +1698,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_TATAR} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_TATAR} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_TATAR} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_TATAR} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_TATAR} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_TATAR} "There is no installation of $(^NameDA)."
@@ -1668,6 +1727,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_THAI} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_THAI} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_THAI} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_THAI} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_THAI} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_THAI} "There is no installation of $(^NameDA)."
@@ -1696,6 +1756,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_TRADCHINESE} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_TRADCHINESE} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_TRADCHINESE} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_TRADCHINESE} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_TRADCHINESE} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_TRADCHINESE} "There is no installation of $(^NameDA)."
@@ -1724,6 +1785,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_TURKISH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_TURKISH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_TURKISH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_TURKISH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_TURKISH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_TURKISH} "There is no installation of $(^NameDA)."
@@ -1752,6 +1814,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_UKRAINIAN} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_UKRAINIAN} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_UKRAINIAN} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_UKRAINIAN} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_UKRAINIAN} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_UKRAINIAN} "There is no installation of $(^NameDA)."
@@ -1780,6 +1843,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_UZBEK} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_UZBEK} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_UZBEK} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_UZBEK} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_UZBEK} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_UZBEK} "There is no installation of $(^NameDA)."
@@ -1808,6 +1872,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_VIETNAMESE} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_VIETNAMESE} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_VIETNAMESE} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_VIETNAMESE} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_VIETNAMESE} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_VIETNAMESE} "There is no installation of $(^NameDA)."
@@ -1836,6 +1901,7 @@
 	LangString MULTIUSER_REINSTALL_DIFF_VERSION_CURRENT_USER ${LANG_WELSH} "Uninstall version {OLD_VERSION} and install version {VERSION} for current user."
 	LangString MULTIUSER_RUN_AS_ADMIN ${LANG_WELSH} "You need to run this program as administrator."
 	LangString MULTIUSER_ADMIN_CREDENTIALS_REQUIRED ${LANG_WELSH} "Administrator credentials required."
+	LangString MULTIUSER_ADMIN_UNINSTALL_CREDENTIALS_REQUIRED ${LANG_WELSH} "Administrator credentials required for uninstall."
 	; error messages - not so important
 	LangString MULTIUSER_INVALID_PARAMS ${LANG_WELSH} "Invalid combination of paramaters."
 	LangString MULTIUSER_NOT_INSTALLED ${LANG_WELSH} "There is no installation of $(^NameDA)."
