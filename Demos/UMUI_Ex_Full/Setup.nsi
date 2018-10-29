@@ -119,21 +119,8 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_LANGUAGE "Bulgarian"
 !insertmacro MULTIUSER_LANGUAGE_INIT
 
-; Sections
-InstType "Typical"
-InstType "Minimal"
-InstType "Full"
-
-Section "Core Files (required)" SectionCoreFiles
-	SectionIn 1 2 3 RO
-
-	; Ultra Modern UI modifies shell var context, see http://forums.winamp.com/showthread.php?t=399898
-	${if} $MultiUser.InstallMode == "AllUsers"
-		SetShellVarContext all
-	${else}
-		SetShellVarContext current
-	${endif}
-
+; Functions
+Function CheckInstallation 
 	; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
 	; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
 	StrCpy $0 ""
@@ -162,12 +149,38 @@ Section "Core Files (required)" SectionCoreFiles
 		${else}
 			StrCpy $2 ""
 		${endif}
+	${endif}
+FunctionEnd
 
+Function RunUninstaller
+	StrCpy $0 0
+	ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
+FunctionEnd
+
+; Sections
+InstType "Typical"
+InstType "Minimal"
+InstType "Full"
+
+Section "Core Files (required)" SectionCoreFiles
+	SectionIn 1 2 3 RO
+
+	; Ultra Modern UI modifies shell var context, see http://forums.winamp.com/showthread.php?t=399898
+	${if} $MultiUser.InstallMode == "AllUsers"
+		SetShellVarContext all
+	${else}
+		SetShellVarContext current
+	${endif}
+
+	!insertmacro UAC_AsUser_Call Function CheckInstallation ${UAC_SYNCREGISTERS}
+	${if} $0 != ""
 		HideWindow
 		ClearErrors
-		StrCpy $0 0
-		ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
-
+		${if} $0 == "AllUsers"
+			Call RunUninstaller
+  		${else}
+			!insertmacro UAC_AsUser_Call Function RunUninstaller ${UAC_SYNCREGISTERS}
+  		${endif}
 		${if} ${errors} ; stay in installer
 			SetErrorLevel 2 ; Installation aborted by script
 			BringToFront
