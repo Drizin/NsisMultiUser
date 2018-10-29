@@ -55,6 +55,11 @@ Section "-Uninstall" ; hidden section, must always be the last one!
 	
 	; Remove the uninstaller from registry as the very last step - if sth. goes wrong, let the user run it again
 	!insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys	
+
+	; If the uninstaller still exists, use cmd.exe on exit to remove it (along with $INSTDIR if it's empty)
+	${if} ${FileExists} "$INSTDIR\${UNINSTALL_FILENAME}"
+		Exec 'cmd.exe /c (del /f /q "$INSTDIR\${UNINSTALL_FILENAME}") && (rmdir "$INSTDIR")'
+	${endif}
 SectionEnd
 
 ; Modern install component descriptions

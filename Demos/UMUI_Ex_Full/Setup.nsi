@@ -189,6 +189,7 @@ Section "Core Files (required)" SectionCoreFiles
 			${Switch} $0
 				${Case} 0 ; uninstaller completed successfully - continue with installation
 					BringToFront
+					Sleep 1000 ; wait for cmd.exe (called by the uninstaller) to finish
 					${Break}
 				${Case} 1 ; Installation aborted by user (cancel button)
 				${Case} 2 ; Installation aborted by script
@@ -201,6 +202,7 @@ Section "Core Files (required)" SectionCoreFiles
 			${EndSwitch}
 		${endif}
 
+		; Just a failsafe - should've been taken care of by cmd.exe
 		!insertmacro DeleteRetryAbort "$3\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
 		RMDir "$3"
 	${endif}
