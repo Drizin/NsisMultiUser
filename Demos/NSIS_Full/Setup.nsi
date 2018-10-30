@@ -73,6 +73,7 @@ PageEx directory
 PageExEnd
 
 PageEx instfiles
+	PageCallbacks PageInstFilesPre EmptyCallback EmptyCallback
 PageExEnd
 
 ; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
@@ -107,14 +108,8 @@ LoadLanguageFile "${NSISDIR}\Contrib\Language files\Bulgarian.nlf"
 ; Reserve files
 ReserveFile /plugin LangDLL.dll
 
-; Sections
-InstType "Typical"
-InstType "Minimal"
-InstType "Full"
-
-Section "Core Files (required)" SectionCoreFiles
-	SectionIn 1 2 3 RO
-
+; Functions
+Function CheckInstallation 
 	; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
 	; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
 	StrCpy $0 ""
@@ -143,12 +138,31 @@ Section "Core Files (required)" SectionCoreFiles
 		${else}
 			StrCpy $2 ""
 		${endif}
+	${endif}
+FunctionEnd
 
+Function RunUninstaller
+	StrCpy $0 0
+	ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
+FunctionEnd
+
+; Sections
+InstType "Typical"
+InstType "Minimal"
+InstType "Full"
+
+Section "Core Files (required)" SectionCoreFiles
+	SectionIn 1 2 3 RO
+
+	!insertmacro UAC_AsUser_Call Function CheckInstallation ${UAC_SYNCREGISTERS}
+	${if} $0 != ""
 		HideWindow
 		ClearErrors
-		StrCpy $0 0
-		ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
-
+		${if} $0 == "AllUsers"
+			Call RunUninstaller
+  		${else}
+			!insertmacro UAC_AsUser_Call Function RunUninstaller ${UAC_SYNCREGISTERS}
+  		${endif}
 		${if} ${errors} ; stay in installer
 			SetErrorLevel 2 ; Installation aborted by script
 			BringToFront
@@ -157,6 +171,7 @@ Section "Core Files (required)" SectionCoreFiles
 			${Switch} $0
 				${Case} 0 ; uninstaller completed successfully - continue with installation
 					BringToFront
+					Sleep 1000 ; wait for cmd.exe (called by the uninstaller) to finish
 					${Break}
 				${Case} 1 ; Installation aborted by user (cancel button)
 				${Case} 2 ; Installation aborted by script
@@ -169,6 +184,7 @@ Section "Core Files (required)" SectionCoreFiles
 			${EndSwitch}
 		${endif}
 
+		; Just a failsafe - should've been taken care of by cmd.exe
 		!insertmacro DeleteRetryAbort "$3\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
 		RMDir "$3"
 	${endif}
@@ -273,6 +289,9 @@ Function PageWelcomeLicensePre
 FunctionEnd
 
 Function PageComponentsPre
+	GetDlgItem $0 $HWNDPARENT 1
+	SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
+
 	${if} $MultiUser.InstallMode == "AllUsers"
 		${if} ${AtLeastWin7} ; add "(current user only)" text to section "Start Menu Icon"
 			SectionGetText ${SectionStartMenuIcon} $0
@@ -286,11 +305,11 @@ Function PageComponentsPre
 FunctionEnd
 
 Function PageDirectoryPre
-	GetDlgItem $0 $HWNDPARENT 1
-	${if} ${SectionIsSelected} ${SectionProgramGroup}
-		SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ; this is not the last page before installing
-	${else}
-		SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)" ; this is the last page before installing
+	GetDlgItem $1 $HWNDPARENT 1
+	SendMessage $1 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)" ; this is the last page before installing
+	Call MultiUser.CheckPageElevationRequired
+	${if} $0 = 2
+		SendMessage $1 ${BCM_SETSHIELD} 0 1 ; display SHIELD (Windows Vista and above)
 	${endif}
 FunctionEnd
 
@@ -304,6 +323,11 @@ Function PageDirectoryShow
 		GetDlgItem $0 $R1 1001 ; Browse button
 		EnableWindow $0 0
 	${endif}
+FunctionEnd
+
+Function PageInstFilesPre
+	GetDlgItem $0 $HWNDPARENT 1
+	SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
 FunctionEnd
 
 Function .onUserAbort

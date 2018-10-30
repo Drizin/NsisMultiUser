@@ -90,6 +90,7 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_STARTMENU "" "$StartMenuFolder"
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}" ; the MUI_PAGE_STARTMENU macro undefines MUI_STARTMENUPAGE_DEFAULTFOLDER, but we need it
 
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PageInstFilesPre
 !insertmacro MUI_PAGE_INSTFILES
 
 !define MUI_FINISHPAGE_RUN
@@ -107,14 +108,8 @@ SetCompressor /SOLID lzma
 ; Reserve files
 !insertmacro MUI_RESERVEFILE_LANGDLL
 
-; Sections
-InstType "Typical"
-InstType "Minimal"
-InstType "Full"
-
-Section "Core Files (required)" SectionCoreFiles
-	SectionIn 1 2 3 RO
-
+; Functions
+Function CheckInstallation 
 	; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
 	; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
 	StrCpy $0 ""
@@ -143,12 +138,31 @@ Section "Core Files (required)" SectionCoreFiles
 		${else}
 			StrCpy $2 ""
 		${endif}
+	${endif}
+FunctionEnd
 
+Function RunUninstaller
+	StrCpy $0 0
+	ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
+FunctionEnd
+
+; Sections
+InstType "Typical"
+InstType "Minimal"
+InstType "Full"
+
+Section "Core Files (required)" SectionCoreFiles
+	SectionIn 1 2 3 RO
+
+	!insertmacro UAC_AsUser_Call Function CheckInstallation ${UAC_SYNCREGISTERS}
+	${if} $0 != ""
 		HideWindow
 		ClearErrors
-		StrCpy $0 0
-		ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
-
+		${if} $0 == "AllUsers"
+			Call RunUninstaller
+  		${else}
+			!insertmacro UAC_AsUser_Call Function RunUninstaller ${UAC_SYNCREGISTERS}
+  		${endif}
 		${if} ${errors} ; stay in installer
 			SetErrorLevel 2 ; Installation aborted by script
 			BringToFront
@@ -157,6 +171,7 @@ Section "Core Files (required)" SectionCoreFiles
 			${Switch} $0
 				${Case} 0 ; uninstaller completed successfully - continue with installation
 					BringToFront
+					Sleep 1000 ; wait for cmd.exe (called by the uninstaller) to finish
 					${Break}
 				${Case} 1 ; Installation aborted by user (cancel button)
 				${Case} 2 ; Installation aborted by script
@@ -169,6 +184,7 @@ Section "Core Files (required)" SectionCoreFiles
 			${EndSwitch}
 		${endif}
 
+		; Just a failsafe - should've been taken care of by cmd.exe
 		!insertmacro DeleteRetryAbort "$3\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
 		RMDir "$3"
 	${endif}
@@ -296,6 +312,9 @@ Function PageInstallModeChangeMode
 FunctionEnd
 
 Function PageComponentsPre
+	GetDlgItem $0 $HWNDPARENT 1
+	SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
+
 	${if} $MultiUser.InstallMode == "AllUsers"
 		${if} ${AtLeastWin7} ; add "(current user only)" text to section "Start Menu Icon"
 			SectionGetText ${SectionStartMenuIcon} $0
@@ -309,11 +328,16 @@ Function PageComponentsPre
 FunctionEnd
 
 Function PageDirectoryPre
-	GetDlgItem $0 $HWNDPARENT 1
+	GetDlgItem $1 $HWNDPARENT 1
 	${if} ${SectionIsSelected} ${SectionProgramGroup}
-		SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ; this is not the last page before installing
+		SendMessage $1 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ; this is not the last page before installing
+		SendMessage $1 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
 	${else}
-		SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)" ; this is the last page before installing
+		SendMessage $1 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)" ; this is the last page before installing
+		Call MultiUser.CheckPageElevationRequired
+		${if} $0 = 2
+			SendMessage $1 ${BCM_SETSHIELD} 0 1 ; display SHIELD (Windows Vista and above)
+		${endif}
 	${endif}
 FunctionEnd
 
@@ -332,7 +356,18 @@ FunctionEnd
 Function PageStartMenuPre
 	${ifnot} ${SectionIsSelected} ${SectionProgramGroup}
 		Abort ; don't display this dialog if SectionProgramGroup is not selected
+	${else}
+		GetDlgItem $1 $HWNDPARENT 1
+		Call MultiUser.CheckPageElevationRequired
+		${if} $0 = 2
+			SendMessage $1 ${BCM_SETSHIELD} 0 1 ; display SHIELD (Windows Vista and above)
+		${endif}
 	${endif}
+FunctionEnd
+
+Function PageInstFilesPre
+	GetDlgItem $0 $HWNDPARENT 1
+	SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
 FunctionEnd
 
 Function PageFinishRun
