@@ -105,6 +105,7 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_STARTMENU "" "$StartMenuFolder"
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}" ; the MUI_PAGE_STARTMENU macro undefines MUI_STARTMENUPAGE_DEFAULTFOLDER, but we need it
 
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PageInstFilesPre
 !insertmacro MUI_PAGE_INSTFILES
 
 !define MUI_FINISHPAGE_RUN
@@ -336,6 +337,9 @@ Function PageInstallModeChangeMode
 FunctionEnd
 
 Function PageComponentsPre
+	GetDlgItem $0 $HWNDPARENT 1
+	SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
+
 	${if} $MultiUser.InstallMode == "AllUsers"
 		${if} ${AtLeastWin7} ; add "(current user only)" text to section "Start Menu Icon"
 			SectionGetText ${SectionStartMenuIcon} $0
@@ -356,11 +360,17 @@ Function PageComponentsShow
 FunctionEnd
 
 Function PageDirectoryPre
-	GetDlgItem $0 $HWNDPARENT 1
+	GetDlgItem $1 $HWNDPARENT 1
 	${if} ${SectionIsSelected} ${SectionProgramGroup}
-		SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ; this is not the last page before installing
+		SendMessage $1 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ; this is not the last page before installing
+		SendMessage $1 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
 	${else}
-		SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)" ; this is the last page before installing
+		SendMessage $1 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)" ; this is the last page before installing
+		Call MultiUser.CheckPageElevationRequired
+		${if} $0 = 2
+			SendMessage $1 ${BCM_SETSHIELD} 0 1 ; display SHIELD (Windows Vista and above)
+		${endif}
+
 	${endif}
 FunctionEnd
 
@@ -379,7 +389,18 @@ FunctionEnd
 Function PageStartMenuPre
 	${ifnot} ${SectionIsSelected} ${SectionProgramGroup}
 		Abort ; don't display this dialog if SectionProgramGroup is not selected
+	${else}
+		GetDlgItem $1 $HWNDPARENT 1
+		Call MultiUser.CheckPageElevationRequired
+		${if} $0 = 2
+			SendMessage $1 ${BCM_SETSHIELD} 0 1 ; display SHIELD (Windows Vista and above)
+		${endif}
 	${endif}
+FunctionEnd
+
+Function PageInstFilesPre
+	GetDlgItem $0 $HWNDPARENT 1
+	SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
 FunctionEnd
 
 Function PageFinishRun
