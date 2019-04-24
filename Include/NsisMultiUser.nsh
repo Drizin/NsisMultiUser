@@ -26,6 +26,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 !define MULTIUSER_ERROR_INVALID_PARAMETERS 666660 ; invalid command-line parameters
 !define MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED 666661 ; elevation is restricted by MULTIUSER_INSTALLMODE_ALLOW_ELEVATION or MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT
 !define MULTIUSER_ERROR_NOT_INSTALLED 666662 ; returned from uninstaller when no version is installed
+!define MULTIUSER_ERROR_RUN_UNINSTALLER_FAILED 666663 ; returned from installer if executing the uninstaller failed
 !define MULTIUSER_ERROR_ELEVATION_FAILED 666666 ; returned by the outer instance when the inner instance cannot start (user aborted elevation dialog, Logon service not running, UAC is not supported by the OS, user without admin priv. is used in the runas dialog), or started, but was not admin
 !define MULTIUSER_INNER_INSTANCE_BACK 666667 ; returned by the inner instance when the user presses the Back button on the first visible page (display outer instance)
 
@@ -528,36 +529,13 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				; NOTES:
 				; - the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for waiting to work
 				; - $R0 passes the original parameters from the installer to the uninstaller (together with /uninstall so that uninstaller knows installer is running and skips opitional single instance checks)
-				; - using ExecWait fails if the new process requires elevation, see http://forums.winamp.com/showthread.php?p=3080202&posted=1#post3080202, so we use ShellExecuteEx
-				System::Call '*(i 60, i 0x140, i 0, t "open", t "$0\${UNINSTALL_FILENAME}", t "$R0 _?=$0", t, i ${SW_SHOW}, i, i, t, i, i, i, i) p .r2' ; allocate and fill values for SHELLEXECUTEINFO structure, returned in $2 (0x140 = SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOASYNC)
-
-				System::Call 'shell32::ShellExecuteEx(i r2) i .r0 ?e'
-				Pop $1
-				${if} $0 = 0
-					SetErrorLevel $1
-					Quit
+				; - using ExecWait fails if the new process requires elevation, see http://forums.winamp.com/showthread.php?p=3080202&posted=1#post3080202, so we use ExecShellWait
+				ExecShellWait "open" "$0\${UNINSTALL_FILENAME}" "$R0 _?=$0"
+				${if} ${errors}
+					SetErrorLevel ${MULTIUSER_ERROR_RUN_UNINSTALLER_FAILED}
+				${else}
+					SetErrorLevel 0
 				${endif}
-
-				System::Call '*$2(i, i, i, t, t, t, t, i, i, i, t, i, i, i, i .r3)' ; get the process handle in $3
-
-				System::Call 'kernel32::WaitForSingleObject(i r3, i -1) i .r0 ?e' ; wait indefinitely for the process to exit
-				Pop $1
-				${if} $0 <> 0 ; WAIT_OBJECT_0
-					SetErrorLevel $1
-					Quit
-				${endif}
-
-				System::Call 'kernel32::GetExitCodeProcess(i r3, *i .r4) i .r0 ?e' ; store exit code in $4
-				Pop $1
-				${if} $0 = 0
-					SetErrorLevel $1
-					Quit
-				${endif}
-
-				System::Call 'Kernel32::CloseHandle(i r3)' ; close the process handle in $3
-				System::Free $2 ; free SHELLEXECUTEINFO structure, stored in $2
-
-				SetErrorLevel $4 ; return exit code stored in $4
 				Quit
 			${endif}
 		!endif
