@@ -38,6 +38,9 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 	; optional defines
 	; COMPANY_NAME - stored in uninstall info in registry
+	; URL_INFO_ABOUT - stored as the Support Link in the uninstall info of the registry, and when not included, the Help Link as well.
+	; URL_HELP_LINK - stored as the Help Link in the uninstall info of the registry.
+	; URL_UPDATE_INFO - stored as the Update Information in the uninstall info of the registry.
 	; MULTIUSER_INSTALLMODE_NO_HELP_DIALOG - don't show help dialog
 
 	!define /ifndef MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 1 ; 0 or 1 - whether user can install BOTH per-user and per-machine; this only affects the texts and the required elevation on the page, the actual uninstall of previous version has to be implemented by script
@@ -1041,6 +1044,15 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayIcon" "$INSTDIR\${PROGEXE},0"
 	!ifdef COMPANY_NAME
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "Publisher" "${COMPANY_NAME}"
+	!endif	
+	!ifdef URL_INFO_ABOUT
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "URLInfoAbout" "${URL_INFO_ABOUT}"
+	!endif
+	!ifdef URL_HELP_LINK
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "HelpLink" "${URL_HELP_LINK}"
+	!endif
+	!ifdef URL_UPDATE_INFO
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "URLUpdateInfo" "${URL_UPDATE_INFO}"
 	!endif
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoModify" 1
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoRepair" 1
