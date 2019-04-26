@@ -1024,6 +1024,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 !macro MULTIUSER_RegistryAddInstallInfo
 	Push $0
+	Push $1
+	Push $2
+	Push $3
+	Push $4
 
 	; Write the installation path into the registry
 	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY_PATH}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" "$INSTDIR" ; "InstallLocation"
@@ -1067,6 +1071,22 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoModify" 1
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoRepair" 1
 
+	; Write InstallDate string value in 'YYYYMMDD' format.
+	; Without it, Windows gets the date from the registry key metadata, which might be inaccurate.
+	System::Call /NOUNLOAD "*(&i2,&i2,&i2,&i2,&i2,&i2,&i2,&i2) i .r4"
+	System::Call /NOUNLOAD "kernel32::GetLocalTime(i)i(r4)"
+	System::Call /NOUNLOAD "*$4(&i2,&i2,&i2,&i2,&i2,&i2,&i2,&i2)i(.r1,.r2,,.r3,,,,)"
+	System::Free $4
+	IntCmp $2 9 0 0 +2
+	StrCpy $2 "0$2"
+	IntCmp $3 9 0 0 +2
+	StrCpy $3 "0$3"
+	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "InstallDate" "$1$2$3"
+
+	Pop $4
+	Pop $3
+	Pop $2
+	Pop $1
 	Pop $0
 !macroend
 
