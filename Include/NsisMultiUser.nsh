@@ -38,6 +38,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 	; optional defines
 	; COMPANY_NAME - stored in uninstall info in registry
+	; CONTACT - stored in uninstall info in registry
+	; COMMENTS - stored in uninstall info in registry
 	; URL_INFO_ABOUT - stored as the Support Link in the uninstall info of the registry, and when not included, the Help Link as well.
 	; URL_HELP_LINK - stored as the Help Link in the uninstall info of the registry.
 	; URL_UPDATE_INFO - stored as the Update Information in the uninstall info of the registry.
@@ -1044,7 +1046,13 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayIcon" "$INSTDIR\${PROGEXE},0"
 	!ifdef COMPANY_NAME
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "Publisher" "${COMPANY_NAME}"
-	!endif	
+	!endif
+	!ifdef CONTACT
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "Contact" "${CONTACT}"
+	!endif
+	!ifdef COMMENTS
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "Comments" "${COMMENTS}"
+	!endif
 	!ifdef URL_INFO_ABOUT
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "URLInfoAbout" "${URL_INFO_ABOUT}"
 	!endif

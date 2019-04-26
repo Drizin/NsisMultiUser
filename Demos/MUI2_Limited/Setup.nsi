@@ -14,6 +14,11 @@
 !define VERSION "1.0" ; main version of the application (may be 0.1, alpha, beta, etc.)
 !define PROGEXE "calc.exe" ; main application filename
 !define COMPANY_NAME "Alex Mitev" ; company, used for registry tree hierarchy
+!define CONTACT "@alexmitev81"
+!define COMMENTS "NsisMultiUser MUI2 Limited Demo, based on the Modern User Interface 2"
+!define URL_INFO_ABOUT "https://github.com/Drizin/NsisMultiUser/tree/master/Demos/MUI2_Limited"
+!define URL_HELP_LINK "https://github.com/Drizin/NsisMultiUser/wiki"
+!define URL_UPDATE_INFO "https://github.com/Drizin/NsisMultiUser"
 !define PLATFORM "Win64"
 !define MIN_WIN_VER "XP"
 !define SETUP_MUTEX "${COMPANY_NAME} ${PRODUCT_NAME} Setup Mutex" ; do not change this between program versions!
