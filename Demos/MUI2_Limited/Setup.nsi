@@ -14,6 +14,9 @@
 !define VERSION "1.0" ; main version of the application (may be 0.1, alpha, beta, etc.)
 !define PROGEXE "calc.exe" ; main application filename
 !define COMPANY_NAME "Alex Mitev" ; company, used for registry tree hierarchy
+!define URL_INFO_ABOUT "https://github.com/Drizin/NsisMultiUser" ; stored as the Support Link in the uninstall info of the registry, and when not included, the Help Link as well
+!define URL_HELP_LINK "https://github.com/Drizin/NsisMultiUser" ; stored as the Help Link in the uninstall info of the registry
+!define URL_UPDATE_INFO "https://github.com/Drizin/NsisMultiUser" ; stored as the Update Information in the uninstall info of the registry
 !define PLATFORM "Win64"
 !define MIN_WIN_VER "XP"
 !define SETUP_MUTEX "${COMPANY_NAME} ${PRODUCT_NAME} Setup Mutex" ; do not change this between program versions!
