@@ -106,8 +106,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	Var MultiUser.InstallModePage.Text
 	Var MultiUser.InstallModePage.AllUsers
 	Var MultiUser.InstallModePage.CurrentUser
-	Var MultiUser.InstallModePage.AllUsersLabel
-	Var MultiUser.InstallModePage.CurrentUserLabel
+	!ifdef UMUI_SYSVERSION
+		Var MultiUser.InstallModePage.AllUsersLabel
+		Var MultiUser.InstallModePage.CurrentUserLabel
+	!endif
 	Var MultiUser.InstallModePage.Description
 !macroend
 
@@ -750,40 +752,63 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!endif
 		Pop $MultiUser.InstallModePage.Text
 
-		StrCpy $0 "$(MULTIUSER_ALL_USERS)"
-		${NSD_CreateRadioButton} 30u 30% 10u 8u ""
-		Pop $MultiUser.InstallModePage.AllUsers
+		!ifdef UMUI_SYSVERSION
+			StrCpy $0 "$(MULTIUSER_ALL_USERS_UMUI)"
+			${NSD_CreateRadioButton} 30u 30% 10u 8u ""
+			Pop $MultiUser.InstallModePage.AllUsers
 
-		System::Call "advapi32::GetUserName(t. r1, *i ${NSIS_MAX_STRLEN})"
-		${${UNINSTALLER_PREFIX}StrRep} "$1" "$(MULTIUSER_CURRENT_USER)" "{USER}" "$1"
-		${NSD_CreateRadioButton} 30u 45% 10u 8u ""
-		Pop $MultiUser.InstallModePage.CurrentUser
+			System::Call "advapi32::GetUserName(t. r1, *i ${NSIS_MAX_STRLEN})"
+			${${UNINSTALLER_PREFIX}StrRep} "$1" "$(MULTIUSER_CURRENT_USER_UMUI)" "{USER}" "$1"
+			${NSD_CreateRadioButton} 30u 45% 10u 8u ""
+			Pop $MultiUser.InstallModePage.CurrentUser
 
-		; We create the radio buttons with empty text and create separate labels, because radio button font color can't be changed with XP Styles turned on,
-		; which creates problems with UMUI themes, see http://forums.winamp.com/showthread.php?p=3079742#post3079742
-		; shortcuts (&) for labels don't work and cause strange behaviour in NSIS - going to another page, etc.
-		${NSD_CreateLabel} 44u 30% 280u 16u "$0"
-		Pop $MultiUser.InstallModePage.AllUsersLabel
-		nsDialogs::SetUserData $MultiUser.InstallModePage.AllUsersLabel $MultiUser.InstallModePage.AllUsers
-		${NSD_CreateLabel} 44u 45% 280u 8u "$1"
-		Pop $MultiUser.InstallModePage.CurrentUserLabel
-		nsDialogs::SetUserData $MultiUser.InstallModePage.CurrentUserLabel $MultiUser.InstallModePage.CurrentUser
+			; We create the radio buttons with empty text and create separate labels, because radio button font color can't be changed with XP Styles turned on,
+			; which creates problems with UMUI themes, see http://forums.winamp.com/showthread.php?p=3079742#post3079742
+			; shortcuts (&) for labels don't work and cause strange behaviour in NSIS - going to another page, etc.
+			${NSD_CreateLabel} 44u 30% 280u 16u "$0"
+			Pop $MultiUser.InstallModePage.AllUsersLabel
+			nsDialogs::SetUserData $MultiUser.InstallModePage.AllUsersLabel $MultiUser.InstallModePage.AllUsers
+			${NSD_CreateLabel} 44u 45% 280u 8u "$1"
+			Pop $MultiUser.InstallModePage.CurrentUserLabel
+			nsDialogs::SetUserData $MultiUser.InstallModePage.CurrentUserLabel $MultiUser.InstallModePage.CurrentUser
 
-		${if} $PerMachineOptionAvailable = 0 ; install per-machine is not available
-			SendMessage $MultiUser.InstallModePage.AllUsersLabel ${WM_SETTEXT} 0 "STR:$0$\r$\n($(MULTIUSER_RUN_AS_ADMIN))" ; only when $PerMachineOptionAvailable = 0, we add that comment to the disabled control itself
-			${orif} $CmdLineInstallMode != ""
-			EnableWindow $MultiUser.InstallModePage.AllUsersLabel 0 ; start out disabled
-			EnableWindow $MultiUser.InstallModePage.AllUsers 0 ; start out disabled
-		${endif}
+			${if} $PerMachineOptionAvailable = 0 ; install per-machine is not available
+				SendMessage $MultiUser.InstallModePage.AllUsersLabel ${WM_SETTEXT} 0 "STR:$0$\r$\n($(MULTIUSER_RUN_AS_ADMIN))" ; only when $PerMachineOptionAvailable = 0, we add that comment to the disabled control itself
+				${orif} $CmdLineInstallMode != ""
+				EnableWindow $MultiUser.InstallModePage.AllUsersLabel 0 ; start out disabled
+				EnableWindow $MultiUser.InstallModePage.AllUsers 0 ; start out disabled
+			${endif}
 
-		${if} $CmdLineInstallMode != ""
-			EnableWindow $MultiUser.InstallModePage.CurrentUserLabel 0
-			EnableWindow $MultiUser.InstallModePage.CurrentUser 0
-		${endif}
+			${if} $CmdLineInstallMode != ""
+				EnableWindow $MultiUser.InstallModePage.CurrentUserLabel 0
+				EnableWindow $MultiUser.InstallModePage.CurrentUser 0
+			${endif}
 
-		; bind to label click
-		${NSD_OnClick} $MultiUser.InstallModePage.CurrentUserLabel ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionLabelClick
-		${NSD_OnClick} $MultiUser.InstallModePage.AllUsersLabel ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionLabelClick
+			; bind to label click
+			${NSD_OnClick} $MultiUser.InstallModePage.CurrentUserLabel ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionLabelClick
+			${NSD_OnClick} $MultiUser.InstallModePage.AllUsersLabel ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionLabelClick
+		!else
+			StrCpy $0 "$(MULTIUSER_ALL_USERS)"
+
+			System::Call "advapi32::GetUserName(t. r1, *i ${NSIS_MAX_STRLEN})"
+			${${UNINSTALLER_PREFIX}StrRep} "$1" "$(MULTIUSER_CURRENT_USER)" "{USER}" "$1"
+
+			${NSD_CreateRadioButton} 30u 30% 280u 16u "$0"
+			Pop $MultiUser.InstallModePage.AllUsers
+
+			${NSD_CreateRadioButton} 30u 45% 280u 8u "$1"
+			Pop $MultiUser.InstallModePage.CurrentUser
+
+			${if} $PerMachineOptionAvailable = 0 ; install per-machine is not available
+				SendMessage $MultiUser.InstallModePage.AllUsers ${WM_SETTEXT} 0 "STR:$0$\r$\n($(MULTIUSER_RUN_AS_ADMIN))" ; only when $PerMachineOptionAvailable = 0, we add that comment to the disabled control itself
+				${orif} $CmdLineInstallMode != ""
+				EnableWindow $MultiUser.InstallModePage.AllUsers 0 ; start out disabled
+			${endif}
+
+			${if} $CmdLineInstallMode != ""
+				EnableWindow $MultiUser.InstallModePage.CurrentUser 0
+			${endif}
+		!endif
 
 		; bind to radiobutton change
 		${NSD_OnClick} $MultiUser.InstallModePage.CurrentUser ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionClick
@@ -980,21 +1005,23 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		System::Store L
 	FunctionEnd
 
-	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionLabelClick
-		Exch $0 ; get clicked control's HWND, which is on the stack in $0
-		nsDialogs::GetUserData $0
-		Pop $0
+	!ifdef UMUI_SYSVERSION
+		Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionLabelClick
+			Exch $0 ; get clicked control's HWND, which is on the stack in $0
+			nsDialogs::GetUserData $0
+			Pop $0
 
-		${NSD_Uncheck} $MultiUser.InstallModePage.AllUsers
-		${NSD_Uncheck} $MultiUser.InstallModePage.CurrentUser
-		${NSD_Check} $0 ; ${NSD_Check} will check both radio buttons without the above 2 lines
-		${NSD_SetFocus} $0
-		Push $0
-		; ${NSD_Check} doesn't call Click event
-		Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionClick
+			${NSD_Uncheck} $MultiUser.InstallModePage.AllUsers
+			${NSD_Uncheck} $MultiUser.InstallModePage.CurrentUser
+			${NSD_Check} $0 ; ${NSD_Check} will check both radio buttons without the above 2 lines
+			${NSD_SetFocus} $0
+			Push $0
+			; ${NSD_Check} doesn't call Click event
+			Call ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionClick
 
-		Pop $0
-	FunctionEnd
+			Pop $0
+		FunctionEnd
+	!endif
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.InstallModeOptionClick
 		Exch $0 ; get clicked control's HWND, which is on the stack in $0
