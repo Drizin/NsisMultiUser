@@ -115,15 +115,9 @@ Function un.onInit
 		; one from the uninstaller).
 		${if} ${UAC_IsAdmin}
 		${andif} $RunningAsShellUser = 0
-			${StdUtils.ExecShellAsUser} $0 "$INSTDIR\${UNINSTALL_FILENAME}" "open" "/user $R0"
+			${StdUtils.ExecShellAsUser} $0 "$INSTDIR\${UNINSTALL_FILENAME}" "open" "/shelluser $R0"
 			Quit
 		${endif}
-		!insertmacro CheckSingleInstance "Setup" "Global" "${SETUP_MUTEX}"
-		!insertmacro CheckSingleInstance "Application" "Local" "${APP_MUTEX}"
-	${endif}
-
-	${ifnot} ${UAC_IsInnerInstance}
-		${andif} $RunningFromInstaller = 0
 		!insertmacro CheckSingleInstance "Setup" "Global" "${SETUP_MUTEX}"
 		!insertmacro CheckSingleInstance "Application" "Local" "${APP_MUTEX}"
 	${endif}
