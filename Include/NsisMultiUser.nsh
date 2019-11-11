@@ -6,6 +6,9 @@ Full source code, documentation and demos at https://github.com/Drizin/NsisMulti
 
 Copyright 2016-2018 Ricardo Drizin, Alex Mitev
 
+File   : Include\NsisMultiUser.nsh
+Version: 2019-07-11
+
 */
 
 !verbose push

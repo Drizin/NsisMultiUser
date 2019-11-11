@@ -1,3 +1,16 @@
+/*
+
+NsisMultiUser.nsh - NSIS plugin that allows "per-user" (no admin required) and "per-machine" (asks elevation *only when necessary*) installations
+
+Full source code, documentation and demos at https://github.com/Drizin/NsisMultiUser/
+
+Copyright 2016-2018 Ricardo Drizin, Alex Mitev
+
+File   : Include\NsisMultiUserLang.nsh
+Version: 2019-07-11
+
+*/
+
 !ifdef LANG_ENGLISH
 	LangString MULTIUSER_PAGE_TITLE ${LANG_ENGLISH} "Choose Users"
 	LangString MULTIUSER_INSTALL_PAGE_SUBTITLE ${LANG_ENGLISH} "Choose for which users to install $(^NameDA)."
