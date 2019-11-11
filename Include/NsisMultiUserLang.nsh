@@ -1,3 +1,16 @@
+/*
+
+NsisMultiUser.nsh - NSIS plugin that allows "per-user" (no admin required) and "per-machine" (asks elevation *only when necessary*) installations
+
+Full source code, documentation and demos at https://github.com/Drizin/NsisMultiUser/
+
+Copyright 2016-2019 Ricardo Drizin, Alex Mitev
+
+File   : Include\NsisMultiUserLang.nsh
+Version: 2019-11-11
+
+*/
+
 !ifdef LANG_ENGLISH
 	LangString MULTIUSER_PAGE_TITLE ${LANG_ENGLISH} "Choose Users"
 	LangString MULTIUSER_INSTALL_PAGE_SUBTITLE ${LANG_ENGLISH} "Choose for which users to install $(^NameDA)."
@@ -1520,8 +1533,10 @@
 	LangString MULTIUSER_UNINSTALL_PAGE_SUBTITLE ${LANG_SCOTSGAELIC} "Choose for which users to remove $(^NameDA)."
 	LangString MULTIUSER_INSTALL_HEADER ${LANG_SCOTSGAELIC} "Select whether to install $(^NameDA) for all users or for current user."
 	LangString MULTIUSER_UNINSTALL_HEADER ${LANG_SCOTSGAELIC} "$(^NameDA) is installed both for all users and for current user.$\r$\nSelect which installation to remove."
-	LangString MULTIUSER_ALL_USERS ${LANG_SCOTSGAELIC} "For anyone who uses this computer (all users)"
-	LangString MULTIUSER_CURRENT_USER ${LANG_SCOTSGAELIC} "For me ({USER})"
+	LangString MULTIUSER_ALL_USERS ${LANG_SCOTSGAELIC} "For &anyone who uses this computer (all users)"
+	LangString MULTIUSER_CURRENT_USER ${LANG_SCOTSGAELIC} "For &me ({USER})"
+	LangString MULTIUSER_ALL_USERS_UMUI ${LANG_SCOTSGAELIC} "For anyone who uses this computer (all users)"
+	LangString MULTIUSER_CURRENT_USER_UMUI ${LANG_SCOTSGAELIC} "For me ({USER})"
 	LangString MULTIUSER_NEW_INSTALLATION_ALL_USERS ${LANG_SCOTSGAELIC} "Fresh install for all users."
 	LangString MULTIUSER_NEW_INSTALLATION_CURRENT_USER ${LANG_SCOTSGAELIC} "Fresh install for current user."
 	LangString MULTIUSER_INSTALLED_ALL_USERS ${LANG_SCOTSGAELIC} "Version {VERSION} is installed for all users in $\"{FOLDER}$\"."
