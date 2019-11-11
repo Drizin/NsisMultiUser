@@ -4,7 +4,7 @@ NsisMultiUser.nsh - NSIS plugin that allows "per-user" (no admin required) and "
 
 Full source code, documentation and demos at https://github.com/Drizin/NsisMultiUser/
 
-Copyright 2016-2018 Ricardo Drizin, Alex Mitev
+Copyright 2016-2019 Ricardo Drizin, Alex Mitev
 
 File   : Include\NsisMultiUserLang.nsh
 Version: 2019-07-11
