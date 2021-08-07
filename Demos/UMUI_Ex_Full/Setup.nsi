@@ -258,7 +258,7 @@ Section "Program Group" SectionProgramGroup
 	!insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section "Dektop Icon" SectionDesktopIcon
+Section "Desktop Icon" SectionDesktopIcon
 	SectionIn 1 3
 
 	!insertmacro MULTIUSER_GetCurrentUserString $0

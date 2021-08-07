@@ -38,7 +38,7 @@ Section "un.Program Files" SectionUninstallProgram
 	; Clean up "Program Group"
 	RMDir /r "$SMPROGRAMS\${PRODUCT_NAME}$0"
 
-	; Clean up "Dektop Icon"
+	; Clean up "Desktop Icon"
 	!insertmacro DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
 SectionEnd
 

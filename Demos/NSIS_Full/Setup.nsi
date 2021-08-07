@@ -234,7 +234,7 @@ Section "Program Group" SectionProgramGroup
 	${endif}
 SectionEnd
 
-Section "Dektop Icon" SectionDesktopIcon
+Section "Desktop Icon" SectionDesktopIcon
 	SectionIn 1 3
 
 	!insertmacro MULTIUSER_GetCurrentUserString $0

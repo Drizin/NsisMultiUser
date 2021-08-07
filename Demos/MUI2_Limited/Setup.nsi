@@ -129,7 +129,7 @@ Section "Core Files (required)" SectionCoreFiles
 			RMDir /r "$SMPROGRAMS\$StartMenuFolder"
 		${endif}
 
-		; Clean up "Dektop Icon"
+		; Clean up "Desktop Icon"
 		!insertmacro DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
 		
 		; Clean up "Start Menu Icon"
@@ -192,7 +192,7 @@ Section "Program Group" SectionProgramGroup
 	!insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section "Dektop Icon" SectionDesktopIcon
+Section "Desktop Icon" SectionDesktopIcon
 	SectionIn 1 3
 
 	!insertmacro MULTIUSER_GetCurrentUserString $0
