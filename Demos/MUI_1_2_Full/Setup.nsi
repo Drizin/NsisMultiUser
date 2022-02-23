@@ -320,6 +320,7 @@ Function PageComponentsPre
 	GetDlgItem $0 $HWNDPARENT 1
 	SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
 
+	; Start Menu and Quick Launch links are always for the current user only (no matter if the installation is for current user or all users) - so if we're installing for all users it's good to emphasize that.
 	${if} $MultiUser.InstallMode == "AllUsers"
 		${if} ${AtLeastWin7} ; add "(current user only)" text to section "Start Menu Icon"
 			SectionGetText ${SectionStartMenuIcon} $0
