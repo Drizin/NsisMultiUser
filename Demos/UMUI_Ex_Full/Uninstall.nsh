@@ -1,3 +1,16 @@
+/*
+
+NsisMultiUser.nsh - NSIS plugin that allows "per-user" (no admin required) and "per-machine" (asks elevation *only when necessary*) installations
+
+Full source code, documentation and demos at https://github.com/Drizin/NsisMultiUser/
+
+Copyright 2016-2019 Ricardo Drizin, Alex Mitev
+
+File   : Demos\UMUI_Ex_Full\Uninstall.nsh
+Version: 2019-07-24
+
+*/
+
 !include un.Utils.nsh
 
 ; Variables
