@@ -1,8 +1,6 @@
+!include WinCore.nsh
 !include LogicLib.nsh
 !include x64.nsh
-
-!define ERROR_ALREADY_EXISTS 0x000000b7
-!define ERROR_ACCESS_DENIED 0x5
 
 !macro CheckPlatform PLATFORM
 	${if} ${RunningX64}

@@ -12,6 +12,7 @@ Copyright 2016-2018 Ricardo Drizin, Alex Mitev
 !verbose 3
 
 ; Standard NSIS header files
+!include WinCore.nsh
 !include nsDialogs.nsh
 !include LogicLib.nsh
 !include x64.nsh
@@ -65,7 +66,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!define /redef MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER 1
 	!endif
 	!define /ifndef MULTIUSER_INSTALLMODE_64_BIT 0 ; set to 1 for 64-bit installers
-	!define /ifndef MULTIUSER_INSTALLMODE_INSTDIR "${PRODUCT_NAME}" ; suggested name of directory to install (under $PROGRAMFILES32/$PROGRAMFILES64 or $LOCALAPPDATA)
+	!define /ifndef MULTIUSER_INSTALLMODE_INSTDIR "${PRODUCT_NAME}" ; suggested name of directory to install (under $PROGRAMFILES32/$PROGRAMFILES64 or $LOCALAPPDATA\Programs)
 
 	!define /ifndef MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME}" ; registry key for UNINSTALL info, placed under [HKLM|HKCU]\Software\Microsoft\Windows\CurrentVersion\Uninstall	(can be ${PRODUCT_NAME} or some {GUID})
 	!define /ifndef MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY "Microsoft\Windows\CurrentVersion\Uninstall\${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY}" ; registry key where InstallLocation is stored, placed under [HKLM|HKCU]\Software (can be ${PRODUCT_NAME} or some {GUID})
@@ -257,9 +258,14 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 			!if "${UNINSTALLER_FUNCPREFIX}" == ""
 				; Set default installation location for installer
 				${if} "$LOCALAPPDATA" != ""
-					; There is a shfolder.dll that emulates CSIDL_LOCAL_APPDATA for older versions of shell32.dll which doesn't support it (pre-Win2k versions)
-					; This shfolder.dll is bundeled with IE5 (or as part of Platform SDK Redistributable) that can be installed on NT4 and NSIS (at least since v3.01) will use it instead of shell32.dll if it is available
-					StrCpy $INSTDIR "$LOCALAPPDATA\${MULTIUSER_INSTALLMODE_INSTDIR}"
+					GetKnownFolderPath $INSTDIR ${FOLDERID_UserProgramFiles} ; exists on Win7 and later
+					${if} "$INSTDIR" == ""
+						; There is a shfolder.dll that emulates CSIDL_LOCAL_APPDATA for older versions of shell32.dll which doesn't support it (pre-Win2k versions)
+						; This shfolder.dll is bundeled with IE5 (or as part of Platform SDK Redistributable) that can be installed on NT4 and NSIS (at least since v3.01) will use it instead of shell32.dll if it is available
+						StrCpy $INSTDIR "$LOCALAPPDATA\Programs\${MULTIUSER_INSTALLMODE_INSTDIR}"
+					${else}
+						StrCpy $INSTDIR "$INSTDIR\${MULTIUSER_INSTALLMODE_INSTDIR}"
+					${endif}
 				${else}
 					; When shfolder.dll is unavailable on NT4 (and so $LOCALAPPDATA returns nothing), local AppData path can still be queried here using registry
 					ReadRegStr $INSTDIR HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Local AppData"
