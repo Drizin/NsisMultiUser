@@ -299,7 +299,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.SetPos
-		System::Call "User32::SetWindowPos(p $HWNDPARENT, i 0, i $0, i $1, i 0, i 0, i 0x5)"
+		System::Call "User32::SetWindowPos(p $HWNDPARENT, i 0, i $0, i $1, i 0, i 0, i 0x45)" ; SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW
 	FunctionEnd
 
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
