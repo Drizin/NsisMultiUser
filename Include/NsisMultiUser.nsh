@@ -302,6 +302,10 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		System::Call "User32::SetWindowPos(p $HWNDPARENT, i 0, i $0, i $1, i 0, i 0, i 0x45)" ; SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW
 	FunctionEnd
 
+	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.GetHwndParent
+		StrCpy $0 $HWNDPARENT
+	FunctionEnd
+
 	Function ${UNINSTALLER_FUNCPREFIX}MultiUser.CheckPageElevationRequired
 		; check if elevation on page is always required, return result in $0
 		; when this function is called from InitChecks, InstallMode is ""
@@ -734,6 +738,8 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				; set position of outer instance
 				Call ${UNINSTALLER_FUNCPREFIX}MultiUser.GetPos
 				!insertmacro UAC_AsUser_Call Function ${UNINSTALLER_FUNCPREFIX}MultiUser.SetPos ${UAC_SYNCREGISTERS}
+				!insertmacro UAC_AsUser_Call Function ${UNINSTALLER_FUNCPREFIX}MultiUser.GetHwndParent ${UAC_SYNCREGISTERS}
+				System::Call "User32::SetForegroundWindow(p $0)"
 
 				SetErrorLevel ${MULTIUSER_INNER_INSTANCE_BACK}
 				Quit
